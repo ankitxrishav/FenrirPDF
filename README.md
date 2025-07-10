@@ -1,9 +1,6 @@
 
 # 🐺 fenrirPDF - Free & Private Online PDF Tools
 
-<p align="center">
-  <img src="https://fenrirpdf.netlify.app/og-image.png" alt="fenrirPDF Banner" />
-</p>
 
 <p align="center">
   <a href="https://github.com/fenrir-app/fenrirpdf/blob/main/LICENSE">
