@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useMemo, useEffect } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   DndContext,
   closestCenter,
@@ -19,6 +19,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { PDFDocument } from "pdf-lib";
 import * as pdfjsLib from "pdfjs-dist";
 import { saveAs } from "file-saver";
+import { useDropzone } from 'react-dropzone';
+
 
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -186,13 +188,18 @@ export default function EditPage() {
     },
     [toast]
   );
-
-  const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+  
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
       handleFileChange(acceptedFiles[0]);
-    },
-    [handleFileChange]
-  );
+    }
+  }, [handleFileChange]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: false,
+    accept: { 'application/pdf': ['.pdf'] },
+  });
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -268,6 +275,11 @@ export default function EditPage() {
     setIsProcessing(false);
     setSelectionMode(false);
   }
+  
+  const handleFileUploadClick = () => {
+    document.getElementById('file-upload')?.click();
+  };
+
 
   const pageIds = useMemo(() => pages.map((p) => p.id), [pages]);
 
@@ -277,8 +289,11 @@ export default function EditPage() {
       <main className="flex-1 container mx-auto p-4 md:p-8">
         {!file ? (
           <div
-            className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-12 text-center h-[60vh] cursor-pointer"
-            onClick={() => document.getElementById('file-upload')?.click()}
+            {...getRootProps()}
+            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[60vh] cursor-pointer transition-colors ${
+              isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
+            }`}
+             onClick={handleFileUploadClick}
           >
             <UploadCloud className="w-16 h-16 text-muted-foreground" />
             <h2 className="mt-4 text-2xl font-semibold">
@@ -288,6 +303,7 @@ export default function EditPage() {
               Upload a single PDF to get started
             </p>
             <Input
+              {...getInputProps()}
               id="file-upload"
               type="file"
               className="hidden"
@@ -318,7 +334,7 @@ export default function EditPage() {
                     {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
                     {selectionMode && selectedPages.size > 0 ? `Download ${selectedPages.size} Pages` : "Download PDF"}
                   </Button>
-                  <Button variant="outline" onClick={() => handleFileChange(file)}>
+                  <Button variant="outline" onClick={handleFileUploadClick}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Upload Another
                   </Button>

@@ -19,6 +19,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { PDFDocument } from "pdf-lib";
 import * as pdfjsLib from "pdfjs-dist";
 import { saveAs } from "file-saver";
+import { useDropzone } from "react-dropzone";
 
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// Configure pdf.js worker
 if (typeof window !== "undefined") {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
 }
@@ -92,7 +92,7 @@ const SortablePageThumbnail: React.FC<SortablePageThumbnailProps> = ({ page, onD
             variant="destructive"
             size="icon"
             className="h-7 w-7"
-            onClick={() => onDelete(page.id)}
+            onClick={(e) => { e.stopPropagation(); onDelete(page.id); }}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -110,14 +110,14 @@ const SortablePageThumbnail: React.FC<SortablePageThumbnailProps> = ({ page, onD
 
 export default function MergePage() {
   const [pages, setPages] = useState<Page[]>([]);
-  const [sourcePdfs, setSourcePdfs] = useState<Map<string, PDFDocument>>(new Map());
+  const [sourcePdfs, setSourcePdfs] = useState<Map<string, {file: File, doc: PDFDocument}>>(new Map());
   const [isLoading, setIsLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [filename, setFilename] = useState("merged.pdf");
   const { toast } = useToast();
 
   const handleFilesChange = useCallback(
-    async (uploadedFiles: FileList | null) => {
+    async (uploadedFiles: File[]) => {
       if (!uploadedFiles || uploadedFiles.length === 0) return;
       setIsLoading(true);
       
@@ -125,7 +125,7 @@ export default function MergePage() {
       const newSourcePdfs = new Map(sourcePdfs);
 
       try {
-        for (const file of Array.from(uploadedFiles)) {
+        for (const file of uploadedFiles) {
           if (file.type !== "application/pdf") {
              toast({
               title: "Invalid file type",
@@ -135,19 +135,19 @@ export default function MergePage() {
             continue;
           }
           
-          const pdfSourceId = `${file.name}-${file.lastModified}`;
+          const pdfSourceId = `${file.name}-${file.lastModified}-${file.size}`;
           const arrayBuffer = await file.arrayBuffer();
 
           if (!newSourcePdfs.has(pdfSourceId)) {
             const pdfDoc = await PDFDocument.load(arrayBuffer);
-            newSourcePdfs.set(pdfSourceId, pdfDoc);
+            newSourcePdfs.set(pdfSourceId, {file, doc: pdfDoc});
           }
           
-          const pdfjsDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          const pdfjsDoc = await pdfjsLib.getDocument({ data: arrayBuffer.slice(0) }).promise;
 
           for (let i = 1; i <= pdfjsDoc.numPages; i++) {
             const page = await pdfjsDoc.getPage(i);
-            const viewport = page.getViewport({ scale: 1 });
+            const viewport = page.getViewport({ scale: 0.5 });
             const canvas = document.createElement("canvas");
             const context = canvas.getContext("2d");
             canvas.height = viewport.height;
@@ -179,6 +179,15 @@ export default function MergePage() {
     [toast, sourcePdfs]
   );
   
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    handleFilesChange(acceptedFiles);
+  }, [handleFilesChange]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { 'application/pdf': ['.pdf'] },
+  });
+  
   const sensors = useSensors(useSensor(PointerSensor));
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -201,19 +210,16 @@ export default function MergePage() {
       toast({ title: "No pages to merge", description: "Please upload some PDFs.", variant: "destructive" });
       return;
     }
-    if (pages.length < 2) {
-       toast({ title: "Not enough pages", description: "You need at least two pages to create a merged PDF.", variant: "destructive" });
-       return;
-    }
 
     setIsProcessing(true);
     try {
       const newPdf = await PDFDocument.create();
 
       for (const page of pages) {
-        const sourcePdf = sourcePdfs.get(page.pdfSourceId);
-        if (sourcePdf) {
-          const [copiedPage] = await newPdf.copyPages(sourcePdf, [page.originalIndex]);
+        const sourcePdfData = sourcePdfs.get(page.pdfSourceId);
+        if (sourcePdfData) {
+          const sourcePdfDoc = sourcePdfData.doc;
+          const [copiedPage] = await newPdf.copyPages(sourcePdfDoc, [page.originalIndex]);
           newPdf.addPage(copiedPage);
         }
       }
@@ -248,9 +254,12 @@ export default function MergePage() {
       <main className="flex-1 container mx-auto p-4 md:p-8">
         {pages.length === 0 && !isLoading ? (
           <div
-            className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-12 text-center h-[60vh] cursor-pointer"
-            onClick={() => document.getElementById('file-upload-input')?.click()}
+            {...getRootProps()}
+            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[60vh] cursor-pointer transition-colors ${
+              isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
+            }`}
           >
+            <input {...getInputProps()} id="file-upload-input" />
             <UploadCloud className="w-16 h-16 text-muted-foreground" />
             <h2 className="mt-4 text-2xl font-semibold">
               Drag &amp; Drop or Click to Upload
@@ -258,14 +267,6 @@ export default function MergePage() {
             <p className="mt-2 text-muted-foreground">
               Select multiple PDF files to merge their pages
             </p>
-            <Input
-              id="file-upload-input"
-              type="file"
-              className="hidden"
-              multiple
-              accept="application/pdf"
-              onChange={(e) => handleFilesChange(e.target.files)}
-            />
           </div>
         ) : isLoading && pages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[60vh]">
