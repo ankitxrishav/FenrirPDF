@@ -81,7 +81,7 @@ export default function Home() {
         />
       <Header />
       <main className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-3xl mx-auto bg-card/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/10 overflow-hidden animated-border">
+        <div className="w-full max-w-4xl mx-auto bg-card/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/10 overflow-hidden animated-border">
             <div className="p-8 md:p-12">
                 <div className="mb-10 text-center">
                   <h1 className="text-4xl md:text-5xl font-bold text-primary leading-tight tracking-tighter">
