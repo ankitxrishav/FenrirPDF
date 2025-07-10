@@ -67,8 +67,8 @@ export default function Home() {
         <div className="absolute bottom-6 right-6">
             <Popover>
                 <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/20">
-                        <Coffee className="h-5 w-5 text-primary-foreground/80" />
+                    <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/20 transition-transform duration-200 hover:scale-110">
+                        <Coffee className="h-6 w-6 text-primary" />
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 mr-4">
