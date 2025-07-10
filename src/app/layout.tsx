@@ -6,18 +6,33 @@ import { Toaster } from '@/components/ui/toaster';
 const siteConfig = {
   name: 'fenrirPDF',
   url: 'https://fenrirpdf.netlify.app',
-  description: 'Merge, extract, and reorder PDF files with ease. Your free, fast, and private online PDF tool.',
   ogImage: 'https://fenrirpdf.netlify.app/og-image.png',
+  description: 'Merge, extract, and reorder PDF files with ease. Your free, fast, and private online PDF tool for all your document needs.',
+  author: 'Fenrir',
 }
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} - Simple PDF Tools`,
+    default: `${siteConfig.name}: Free & Fast Online PDF Tools - Merge & Extract`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
-  keywords: ['PDF tools', 'Merge PDF', 'Extract PDF', 'Reorder PDF', 'Online PDF Editor', 'Free PDF tool'],
+  keywords: [
+    'PDF tools', 
+    'Merge PDF', 
+    'Extract PDF', 
+    'Reorder PDF', 
+    'Online PDF Editor', 
+    'Free PDF tool',
+    'PDF merger',
+    'PDF extractor',
+    'PDF combiner',
+    'PDF page remover',
+    'fenrirpdf',
+  ],
+  authors: [{ name: siteConfig.author, url: siteConfig.url }],
+  creator: siteConfig.author,
   robots: {
     index: true,
     follow: true,
@@ -32,7 +47,10 @@ export const metadata: Metadata = {
   manifest: '/site.webmanifest',
   openGraph: {
     url: siteConfig.url,
-    title: siteConfig.name,
+    title: {
+        default: `${siteConfig.name}: Free & Fast Online PDF Tools`,
+        template: `%s | ${siteConfig.name}`,
+    },
     description: siteConfig.description,
     siteName: siteConfig.name,
     images: [
@@ -40,7 +58,7 @@ export const metadata: Metadata = {
         url: siteConfig.ogImage,
         width: 1200,
         height: 630,
-        alt: siteConfig.name,
+        alt: `Banner for ${siteConfig.name}`,
       },
     ],
     locale: 'en_US',
@@ -48,15 +66,24 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: siteConfig.name,
+    title: {
+        default: `${siteConfig.name}: Free & Fast Online PDF Tools`,
+        template: `%s | ${siteConfig.name}`,
+    },
     description: siteConfig.description,
     images: [siteConfig.ogImage],
+    creator: `@${siteConfig.author}`,
   },
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon-16x16.png',
     apple: '/apple-touch-icon.png',
   },
+  verification: {
+    // Add your Google Search Console verification tag here
+    // google: 'your-google-verification-code',
+  },
+  category: 'Productivity',
 };
 
 export default function RootLayout({
