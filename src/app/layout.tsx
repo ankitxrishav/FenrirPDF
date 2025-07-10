@@ -45,12 +45,12 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  manifest: '/site.webmanifest',
+  manifest: '/manifest.json',
   openGraph: {
     url: siteConfig.url,
     title: {
         default: `${siteConfig.name}: Free & Fast Online PDF Tools`,
-        template: `%s | ${siteConfig.name}`,
+        template: `%s | ${site.name}`,
     },
     description: siteConfig.description,
     siteName: siteConfig.name,
@@ -105,6 +105,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap"
           rel="stylesheet"
         />
+        <meta name="theme-color" content="#293B5F" />
       </head>
       <body className="font-body antialiased bg-background">
         <ThemeProvider
