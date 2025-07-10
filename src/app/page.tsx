@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { Heart } from 'lucide-react';
 import { Header } from '@/components/Header';
 import type { Metadata } from 'next';
 
@@ -114,13 +113,6 @@ export default function Home() {
             </div>
         </div>
       </main>
-      <footer className="w-full p-6 text-sm text-muted-foreground">
-          <div className="container mx-auto flex justify-center items-center">
-            <p className="flex items-center justify-center gap-1.5">
-              Made with <Heart className="h-4 w-4 text-red-500" /> by Fenrir
-            </p>
-          </div>
-      </footer>
     </div>
   );
 }
