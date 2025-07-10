@@ -268,10 +268,16 @@ export default function MergePage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1 container mx-auto p-4 md:p-8">
+        <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-primary">Merge PDF Files Online</h1>
+            <p className="mt-4 text-lg text-foreground/80 max-w-3xl mx-auto">
+                Combine multiple PDF files into a single, organized document. Upload your files, drag and drop pages to set the order, and download your merged PDF in seconds.
+            </p>
+        </div>
         {pages.length === 0 && !isLoading ? (
           <div
             {...getRootProps()}
-            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[60vh] cursor-pointer transition-colors ${
+            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[50vh] cursor-pointer transition-colors ${
               isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
             }`}
             onClick={(e) => e.preventDefault()}
@@ -286,7 +292,7 @@ export default function MergePage() {
             </p>
           </div>
         ) : isLoading && pages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-[60vh]">
+          <div className="flex flex-col items-center justify-center h-[50vh]">
             <div className="w-full max-w-md space-y-4">
                 <p className="text-lg text-center text-muted-foreground">
                   Processing your PDFs...
@@ -358,5 +364,3 @@ export default function MergePage() {
     </div>
   );
 }
-
-    

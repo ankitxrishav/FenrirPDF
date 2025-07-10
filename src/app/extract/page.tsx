@@ -293,10 +293,16 @@ export default function ExtractPage() {
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1 container mx-auto p-4 md:p-8">
+        <div className="text-center mb-8">
+            <h1 className="text-4xl md:text-5xl font-bold text-primary">Extract & Reorder PDF Pages</h1>
+            <p className="mt-4 text-lg text-foreground/80 max-w-3xl mx-auto">
+              Easily extract specific pages from your PDF. Drag and drop to reorder, delete unwanted pages, and download your newly organized file instantly.
+            </p>
+        </div>
         {!file ? (
           <div
             {...getRootProps()}
-            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[60vh] cursor-pointer transition-colors ${
+            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[50vh] cursor-pointer transition-colors ${
               isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
             }`}
              onClick={(e) => e.preventDefault()} // prevent default to stop opening file dialog twice
@@ -315,7 +321,7 @@ export default function ExtractPage() {
             </p>
           </div>
         ) : isLoading ? (
-          <div className="flex flex-col items-center justify-center h-[60vh]">
+          <div className="flex flex-col items-center justify-center h-[50vh]">
             <div className="w-full max-w-md space-y-4">
                 <p className="text-lg text-center text-muted-foreground">
                   Processing your PDF...
@@ -380,5 +386,3 @@ export default function ExtractPage() {
     </div>
   );
 }
-
-    
