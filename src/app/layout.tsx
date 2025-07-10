@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     url: siteConfig.url,
     title: {
         default: `${siteConfig.name}: Free & Fast Online PDF Tools`,
-        template: `%s | ${site.name}`,
+        template: `%s | ${siteConfig.name}`,
     },
     description: siteConfig.description,
     siteName: siteConfig.name,
