@@ -39,6 +39,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 
 if (typeof window !== "undefined") {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
@@ -133,6 +134,7 @@ export default function ExtractPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectionMode, setSelectionMode] = useState(false);
   const [filename, setFilename] = useState("extracted.pdf");
+  const [progress, setProgress] = useState(0);
 
   const { toast } = useToast();
 
@@ -150,14 +152,16 @@ export default function ExtractPage() {
       setFile(uploadedFile);
       setFilename(`edited-${uploadedFile.name}`);
       setIsLoading(true);
+      setProgress(0);
       try {
         const arrayBuffer = await uploadedFile.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
         const newPages: Page[] = [];
+        const totalPages = pdf.numPages;
 
-        for (let i = 1; i <= pdf.numPages; i++) {
+        for (let i = 1; i <= totalPages; i++) {
           const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 1 });
+          const viewport = page.getViewport({ scale: 0.5 }); // Reduced scale for performance
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d");
           canvas.height = viewport.height;
@@ -172,6 +176,7 @@ export default function ExtractPage() {
               originalIndex: i - 1,
             });
           }
+          setProgress(Math.round((i / totalPages) * 100));
         }
         setPages(newPages);
       } catch (error) {
@@ -204,7 +209,7 @@ export default function ExtractPage() {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (active.id !== over?.id) {
+    if (over && active.id !== over.id) {
       setPages((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over!.id);
@@ -276,9 +281,11 @@ export default function ExtractPage() {
   }
   
   const handleFileUploadClick = () => {
-    document.getElementById('file-upload')?.click();
+    const el = document.getElementById('file-upload');
+    if (el) {
+      el.click();
+    }
   };
-
 
   const pageIds = useMemo(() => pages.map((p) => p.id), [pages]);
 
@@ -292,30 +299,30 @@ export default function ExtractPage() {
             className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[60vh] cursor-pointer transition-colors ${
               isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
             }`}
-             onClick={handleFileUploadClick}
+             onClick={(e) => e.preventDefault()} // prevent default to stop opening file dialog twice
           >
+            <input
+              {...getInputProps()}
+              id="file-upload"
+              className="hidden"
+            />
             <UploadCloud className="w-16 h-16 text-muted-foreground" />
             <h2 className="mt-4 text-2xl font-semibold">
-              Drag &amp; Drop or Click to Upload
+              Drag &amp; Drop or <span className="text-accent underline" onClick={handleFileUploadClick}>Click to Upload</span>
             </h2>
             <p className="mt-2 text-muted-foreground">
               Upload a single PDF to get started
             </p>
-            <Input
-              {...getInputProps()}
-              id="file-upload"
-              type="file"
-              className="hidden"
-              accept="application/pdf"
-              onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
-            />
           </div>
         ) : isLoading ? (
           <div className="flex flex-col items-center justify-center h-[60vh]">
-            <Loader2 className="w-16 h-16 animate-spin text-accent" />
-            <p className="mt-4 text-lg text-muted-foreground">
-              Processing your PDF...
-            </p>
+            <div className="w-full max-w-md space-y-4">
+                <p className="text-lg text-center text-muted-foreground">
+                  Processing your PDF...
+                </p>
+                <Progress value={progress} className="w-full" />
+                <p className="text-sm text-center text-muted-foreground">{progress}%</p>
+            </div>
           </div>
         ) : (
           <div className="space-y-6">
@@ -373,3 +380,5 @@ export default function ExtractPage() {
     </div>
   );
 }
+
+    
