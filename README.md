@@ -31,37 +31,9 @@
 -   **Drag & Drop**: [dnd-kit](https://dndkit.com/)
 -   **Deployment**: [Netlify](https://www.netlify.com/) (or any other static host)
 
-## 🚀 Getting Started
-
-Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
-
-### Prerequisites
-
-You need to have [Node.js](https://nodejs.org/en/) (version 18 or later) and npm installed on your machine.
-
-### Installation
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/fenrirPDF.git
-    cd fenrirPDF
-    ```
-
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-
-3.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-
-Open [http://localhost:9002](http://localhost:9002) with your browser to see the result. You can start editing the pages, and the app will auto-update.
-
 ## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
