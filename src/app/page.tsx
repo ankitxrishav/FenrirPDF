@@ -1,6 +1,14 @@
 import Link from 'next/link';
-import { Coffee } from 'lucide-react';
+import { Coffee, Heart } from 'lucide-react';
 import { Header } from '@/components/Header';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 const MergeIcon = () => (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -52,11 +60,38 @@ export default function Home() {
             </div>
         </div>
       </main>
-      <footer className="w-full p-6 flex justify-between items-center text-sm text-muted-foreground">
-        <p>Made with ❤️ by Fenrir</p>
-        <a href="https://buymeacoffee.com/fenrirxankit" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-primary transition-colors">
-            <Coffee className="h-4 w-4"/> Buy me a coffee
-        </a>
+      <footer className="w-full p-6 text-sm text-muted-foreground text-center relative">
+        <p className="flex items-center justify-center gap-1.5">
+          Made with <Heart className="h-4 w-4 text-red-500" /> by Fenrir
+        </p>
+        <div className="absolute bottom-6 right-6">
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/20">
+                        <Coffee className="h-5 w-5 text-primary-foreground/80" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 mr-4">
+                    <div className="grid gap-4">
+                        <div className="space-y-2">
+                            <h4 className="font-medium leading-none">Buy me a coffee</h4>
+                            <p className="text-sm text-muted-foreground">
+                                If you like this tool, consider supporting its development.
+                            </p>
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="amount">Amount ($)</Label>
+                            <Input id="amount" defaultValue="5" />
+                        </div>
+                        <a href="https://buymeacoffee.com/fenrirxankit" target="_blank" rel="noopener noreferrer">
+                          <Button className="w-full">
+                            Support with ❤️
+                          </Button>
+                        </a>
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </div>
       </footer>
     </div>
   );
