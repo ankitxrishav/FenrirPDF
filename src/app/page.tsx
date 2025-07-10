@@ -23,7 +23,7 @@ export default function Home() {
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-4xl mx-auto bg-white/30 dark:bg-black/20 backdrop-blur-2xl rounded-3xl shadow-2xl shadow-gray-300/20 dark:shadow-black/20 overflow-hidden animated-border">
             <div className="p-10 md:p-16">
-                <div className="mb-12 text-left">
+                <div className="mb-12 text-center md:text-left">
                   <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight">
                     Merge. Extract. Done.
                   </h1>

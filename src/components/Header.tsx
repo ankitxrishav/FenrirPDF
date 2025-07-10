@@ -10,7 +10,7 @@ const FenrirLogo = () => (
 
 export function Header() {
   return (
-    <header className="w-full p-4 absolute top-0 left-0 z-10">
+    <header className="w-full p-4">
       <div className="container mx-auto flex justify-between items-center">
         <Link
           href="/"
