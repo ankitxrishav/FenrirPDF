@@ -1,0 +1,21 @@
+{
+  "name": "fenrirPDF",
+  "short_name": "fenrirPDF",
+  "description": "Merge, extract, and reorder PDF files with ease. Your free, fast, and private online PDF tool.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F2F4F8",
+  "theme_color": "#293B5F",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
