@@ -122,7 +122,7 @@ export default function RootLayout({
           src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
           data-id="fenrirxankit"
           data-description="Support me on Buy me a coffee!"
-          data-message="Thanks YO!"
+          data-message=""
           data-color="#40DCA5"
           data-position="Right"
           data-x_margin="18"
