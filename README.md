@@ -1,7 +1,22 @@
 
 # 🐺 fenrirPDF - Free & Private Online PDF Tools
 
-![fenrirPDF](https://fenrirpdf.netlify.app/og-image.png)
+<p align="center">
+  <img src="https://fenrirpdf.netlify.app/og-image.png" alt="fenrirPDF Banner" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/fenrir-app/fenrirpdf/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="License">
+  </a>
+  <img src="https://img.shields.io/badge/Next.js-14-blue?logo=nextdotjs" alt="Next.js">
+  <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react" alt="React">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?logo=tailwindcss" alt="Tailwind CSS">
+  <a href="https://fenrirpdf.netlify.app">
+    <img src="https://img.shields.io/badge/deployed_on-Netlify-00C7B7?logo=netlify" alt="Deployed on Netlify">
+  </a>
+</p>
+
 
 **Live Site → [fenrirpdf.netlify.app](https://fenrirpdf.netlify.app)**
 
