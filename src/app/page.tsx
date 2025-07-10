@@ -2,13 +2,6 @@ import Link from 'next/link';
 import { Coffee, Heart } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 
 const MergeIcon = () => (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -28,9 +21,9 @@ export default function Home() {
     <div className="flex flex-col min-h-screen font-sans bg-gray-50 dark:bg-gray-900 bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800">
       <Header />
       <main className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl mx-auto bg-white/30 dark:bg-black/20 backdrop-blur-2xl border border-white/50 dark:border-black/30 rounded-3xl shadow-2xl shadow-gray-300/20 dark:shadow-black/20 overflow-hidden">
-            <div className="p-8 md:p-12">
-                <div className="mb-10 text-left">
+        <div className="w-full max-w-3xl mx-auto bg-white/30 dark:bg-black/20 backdrop-blur-2xl rounded-3xl shadow-2xl shadow-gray-300/20 dark:shadow-black/20 overflow-hidden animated-border">
+            <div className="p-10 md:p-16">
+                <div className="mb-12 text-left">
                   <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight">
                     Merge. Extract. Done.
                   </h1>
@@ -39,58 +32,40 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <Link href="/merge">
-                    <div className="text-primary dark:text-accent-foreground/80 bg-white/50 dark:bg-white/10 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
+                    <div className="text-primary dark:text-accent-foreground/80 bg-white/50 dark:bg-white/10 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
                       <MergeIcon />
-                      <p className="mt-4 font-bold text-lg text-gray-800 dark:text-white">Merge PDFs</p>
+                      <p className="mt-4 font-bold text-xl text-gray-800 dark:text-white">Merge PDFs</p>
                     </div>
                   </Link>
                   <Link href="/edit">
-                    <div className="text-primary dark:text-accent-foreground/80 bg-white/50 dark:bg-white/10 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
+                    <div className="text-primary dark:text-accent-foreground/80 bg-white/50 dark:bg-white/10 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
                       <ExtractIcon />
-                      <p className="mt-4 font-bold text-lg text-gray-800 dark:text-white">Extract & Reorder</p>
+                      <p className="mt-4 font-bold text-xl text-gray-800 dark:text-white">Extract & Reorder</p>
                     </div>
                   </Link>
                 </div>
                 
-                <p className="mt-10 text-center text-sm text-gray-500 dark:text-gray-400">
+                <p className="mt-12 text-center text-sm text-gray-500 dark:text-gray-400">
                     All processing is done locally in your browser.
                 </p>
             </div>
         </div>
       </main>
-      <footer className="w-full p-6 text-sm text-muted-foreground text-center relative">
-        <p className="flex items-center justify-center gap-1.5">
-          Made with <Heart className="h-4 w-4 text-red-500" /> by Fenrir
-        </p>
+      <footer className="w-full p-6 text-sm text-muted-foreground relative">
+          <div className="container mx-auto flex justify-center items-center">
+            <p className="flex items-center justify-center gap-1.5">
+              Made with <Heart className="h-4 w-4 text-red-500" /> by Fenrir
+            </p>
+          </div>
         <div className="absolute bottom-6 right-6">
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full hover:bg-white/20 transition-transform duration-200 hover:scale-110">
-                        <Coffee className="h-6 w-6 text-primary" />
-                    </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 mr-4">
-                    <div className="grid gap-4">
-                        <div className="space-y-2">
-                            <h4 className="font-medium leading-none">Buy me a coffee</h4>
-                            <p className="text-sm text-muted-foreground">
-                                If you like this tool, consider supporting its development.
-                            </p>
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="amount">Amount ($)</Label>
-                            <Input id="amount" defaultValue="5" />
-                        </div>
-                        <a href="https://buymeacoffee.com/fenrirxankit" target="_blank" rel="noopener noreferrer">
-                          <Button className="w-full">
-                            Support with ❤️
-                          </Button>
-                        </a>
-                    </div>
-                </PopoverContent>
-            </Popover>
+            <a href="https://buymeacoffee.com/fenrirxankit" target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" className="rounded-full hover:bg-white/20 transition-transform duration-200 hover:scale-110 h-14 w-auto px-4 gap-2">
+                  <Coffee className="h-7 w-7 text-primary" />
+                  <span className="text-primary font-semibold hidden sm:inline">Buy me a coffee</span>
+              </Button>
+            </a>
         </div>
       </footer>
     </div>

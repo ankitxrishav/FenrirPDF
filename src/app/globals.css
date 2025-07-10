@@ -67,3 +67,33 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  @keyframes animated-border {
+    0% {
+      --angle: 0deg;
+    }
+    100% {
+      --angle: 360deg;
+    }
+  }
+
+  .animated-border {
+    --angle: 0deg;
+    --border-size: 2px;
+    --border-color: conic-gradient(
+      from var(--angle),
+      hsl(var(--background)),
+      hsl(var(--accent)) 25%,
+      hsl(var(--accent)) 75%,
+      hsl(var(--background)) 100%
+    );
+    border: var(--border-size) solid transparent;
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+    background-image:
+      linear-gradient(hsl(var(--card)), hsl(var(--card))),
+      var(--border-color);
+    animation: animated-border 5s linear infinite;
+  }
+}
