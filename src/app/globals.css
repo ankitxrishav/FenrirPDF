@@ -33,18 +33,18 @@
  
   .dark {
     --background: 222 40% 12%;
-    --foreground: 220 14% 90%;
+    --foreground: 0 0% 98%; /* Changed to a brighter white */
     --card: 222 40% 15%;
-    --card-foreground: 220 14% 90%;
+    --card-foreground: 0 0% 98%; /* Changed to a brighter white */
     --popover: 222 40% 15%;
-    --popover-foreground: 220 14% 90%;
-    --primary: 201 49% 45%;
+    --popover-foreground: 0 0% 98%; /* Changed to a brighter white */
+    --primary: 0 0% 98%; /* Changed to white for high contrast */
     --primary-foreground: 222 40% 10%;
     --secondary: 222 40% 25%;
     --secondary-foreground: 0 0% 98%;
     --muted: 222 40% 25%;
     --muted-foreground: 220 14% 70%;
-    --accent: 222 39% 26%;
+    --accent: 201 49% 45%; /* Kept accent for highlights */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
