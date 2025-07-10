@@ -74,17 +74,17 @@ const ExtractIcon = () => (
 
 export default function Home() {
   return (
-    <div className="flex flex-col h-screen font-sans bg-background">
+    <div className="flex flex-col h-full font-sans bg-background">
        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JsonLd) }}
         />
       <Header />
       <main className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-4xl mx-auto bg-card/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/10 overflow-hidden animated-border">
-            <div className="p-10 md:p-16">
-                <div className="mb-12 text-center">
-                  <h1 className="text-5xl md:text-6xl font-bold text-primary leading-tight tracking-tighter">
+        <div className="w-full max-w-3xl mx-auto bg-card/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/10 overflow-hidden animated-border">
+            <div className="p-8 md:p-12">
+                <div className="mb-10 text-center">
+                  <h1 className="text-4xl md:text-5xl font-bold text-primary leading-tight tracking-tighter">
                     Merge. Extract. Done.
                   </h1>
                   <p className="mt-4 text-lg text-foreground/80">
@@ -92,7 +92,7 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Link href="/merge">
                     <div className="text-primary bg-card/80 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
                       <MergeIcon />
@@ -107,7 +107,7 @@ export default function Home() {
                   </Link>
                 </div>
                 
-                <p className="mt-12 text-center text-sm text-foreground/60">
+                <p className="mt-10 text-center text-sm text-foreground/60">
                     All processing is done locally in your browser.
                 </p>
             </div>
