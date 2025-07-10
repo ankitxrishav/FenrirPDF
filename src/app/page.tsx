@@ -26,6 +26,39 @@ export const metadata: Metadata = {
   }
 };
 
+const JsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "url": siteConfig.url,
+  "name": "fenrirPDF",
+  "description": siteConfig.description,
+  "potentialAction": [
+    {
+      "@type": "Action",
+      "name": "Merge PDF Files",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${siteConfig.url}/merge`
+      }
+    },
+    {
+      "@type": "Action",
+      "name": "Extract PDF Pages",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${siteConfig.url}/extract`
+      }
+    }
+  ],
+  "publisher": {
+    "@type": "Organization",
+    "name": "fenrirPDF",
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteConfig.url}/apple-touch-icon.png`
+    }
+  }
+};
 
 const MergeIcon = () => (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -39,35 +72,6 @@ const ExtractIcon = () => (
         <path d="M32 2H12C9.79 2 8 3.79 8 6V42C8 44.21 9.79 46 12 46H36C38.21 46 40 44.21 40 42V10L32 2ZM28 28H16V24H28V28ZM28 20H16V16H28V20ZM30 12V4H38L30 12Z" fill="currentColor"/>
     </svg>
 );
-
-const JsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "url": siteConfig.url,
-  "name": "fenrirPDF",
-  "description": siteConfig.description,
-  "potentialAction": [
-    {
-      "@type": "Action",
-      "name": "Merge PDF Files",
-      "target": `${siteConfig.url}/merge`
-    },
-    {
-      "@type": "Action",
-      "name": "Extract PDF Pages",
-      "target": `${siteConfig.url}/extract`
-    }
-  ],
-  "publisher": {
-    "@type": "Organization",
-    "name": "fenrirPDF",
-    "logo": {
-      "@type": "ImageObject",
-      "url": `${siteConfig.url}/apple-touch-icon.png`
-    }
-  }
-};
-
 
 export default function Home() {
   return (
