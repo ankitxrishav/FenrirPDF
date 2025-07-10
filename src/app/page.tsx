@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { Coffee, Moon, Sun } from 'lucide-react';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { Coffee } from 'lucide-react';
+import { Header } from '@/components/Header';
 
 const MergeIcon = () => (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -18,21 +18,10 @@ const ExtractIcon = () => (
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen font-sans bg-gray-50 dark:bg-gray-900 bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800">
-       <div className="absolute top-4 right-4 z-10">
-          <ThemeToggle />
-        </div>
+      <Header />
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-2xl mx-auto bg-white/30 dark:bg-black/20 backdrop-blur-2xl border border-white/50 dark:border-black/30 rounded-3xl shadow-2xl shadow-gray-300/20 dark:shadow-black/20 overflow-hidden">
             <div className="p-8 md:p-12">
-                <header className="flex items-center gap-3 mb-10">
-                    <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
-                        <svg width="24" height="24" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M64 0C28.6533 0 0 28.6533 0 64V128H42.6667V85.3333C42.6667 73.86 52.1933 64.3333 63.6667 64.3333H85.3333C108.52 64.3333 128 44.8533 128 21.6667C128 9.69333 118.307 0 106.333 0H64Z" fill="currentColor"/>
-                        </svg>
-                    </div>
-                    <span className="text-2xl font-bold text-gray-800 dark:text-white">fenrirPDF</span>
-                </header>
-
                 <div className="mb-10 text-left">
                   <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight">
                     Merge. Extract. Done.
@@ -63,9 +52,9 @@ export default function Home() {
             </div>
         </div>
       </main>
-      <footer className="py-6 text-center text-sm text-muted-foreground space-y-2">
+      <footer className="w-full p-6 flex justify-between items-center text-sm text-muted-foreground">
         <p>Made with ❤️ by Fenrir</p>
-        <a href="https://www.buymeacoffee.com/fenrir" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-primary transition-colors">
+        <a href="https://buymeacoffee.com/fenrirxankit" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 hover:text-primary transition-colors">
             <Coffee className="h-4 w-4"/> Buy me a coffee
         </a>
       </footer>

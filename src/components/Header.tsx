@@ -10,13 +10,13 @@ const FenrirLogo = () => (
 
 export function Header() {
   return (
-    <header className="py-4 px-4 md:px-8 border-b sticky top-0 bg-background/80 backdrop-blur-sm z-10">
+    <header className="w-full p-4 absolute top-0 left-0 z-10">
       <div className="container mx-auto flex justify-between items-center">
         <Link
           href="/"
           className="flex items-center gap-2 font-bold text-xl text-primary"
         >
-          <div className="text-red-500">
+          <div className="text-primary">
             <FenrirLogo />
           </div>
           <span className="font-headline">fenrirPDF</span>
