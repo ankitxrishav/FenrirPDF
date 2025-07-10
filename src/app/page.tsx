@@ -74,7 +74,7 @@ const ExtractIcon = () => (
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen font-sans bg-background">
+    <div className="flex flex-col h-screen font-sans bg-background">
        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JsonLd) }}
