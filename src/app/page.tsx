@@ -2,6 +2,31 @@ import Link from 'next/link';
 import { Coffee, Heart } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
+import type { Metadata } from 'next';
+
+const siteConfig = {
+  name: 'fenrirPDF',
+  url: 'https://fenrirpdf.netlify.app',
+  description: 'Your everyday PDF tool – lightweight, fast, no signup. Merge multiple PDFs into one, or extract and reorder pages from a single PDF. All done locally in your browser for ultimate privacy.',
+};
+
+export const metadata: Metadata = {
+  title: 'Free Online PDF Tools - Merge, Extract & Reorder | fenrirPDF',
+  description: siteConfig.description,
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Free Online PDF Tools - Merge, Extract & Reorder | fenrirPDF',
+    description: siteConfig.description,
+    url: '/',
+  },
+  twitter: {
+     title: 'Free Online PDF Tools - Merge, Extract & Reorder | fenrirPDF',
+    description: siteConfig.description,
+  }
+};
+
 
 const MergeIcon = () => (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -16,9 +41,42 @@ const ExtractIcon = () => (
     </svg>
 );
 
+const JsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "url": siteConfig.url,
+  "name": "fenrirPDF",
+  "description": siteConfig.description,
+  "potentialAction": [
+    {
+      "@type": "Action",
+      "name": "Merge PDF Files",
+      "target": `${siteConfig.url}/merge`
+    },
+    {
+      "@type": "Action",
+      "name": "Extract PDF Pages",
+      "target": `${siteConfig.url}/extract`
+    }
+  ],
+  "publisher": {
+    "@type": "Organization",
+    "name": "fenrirPDF",
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteConfig.url}/apple-touch-icon.png`
+    }
+  }
+};
+
+
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen font-sans bg-gray-50 dark:bg-gray-900 bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-black">
+       <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JsonLd) }}
+        />
       <Header />
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-4xl mx-auto bg-white/30 dark:bg-black/20 backdrop-blur-2xl rounded-3xl shadow-2xl shadow-gray-300/20 dark:shadow-black/20 overflow-hidden animated-border">

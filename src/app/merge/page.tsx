@@ -21,7 +21,6 @@ import { PDFDocument } from "pdf-lib";
 import * as pdfjsLib from "pdfjs-dist";
 import { saveAs } from "file-saver";
 import { useDropzone } from "react-dropzone";
-import type { Metadata } from 'next';
 
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";

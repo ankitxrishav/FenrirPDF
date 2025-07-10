@@ -21,8 +21,6 @@ import { PDFDocument } from "pdf-lib";
 import * as pdfjsLib from "pdfjs-dist";
 import { saveAs } from "file-saver";
 import { useDropzone } from 'react-dropzone';
-import type { Metadata } from 'next';
-
 
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
@@ -42,7 +40,6 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-// Configure pdf.js worker
 if (typeof window !== "undefined") {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
 }
