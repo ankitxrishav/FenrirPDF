@@ -39,7 +39,7 @@ export default function Home() {
                       <p className="mt-4 font-bold text-xl text-gray-800 dark:text-white">Merge PDFs</p>
                     </div>
                   </Link>
-                  <Link href="/edit">
+                  <Link href="/extract">
                     <div className="text-primary dark:text-accent-foreground/80 bg-white/50 dark:bg-white/10 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
                       <ExtractIcon />
                       <p className="mt-4 font-bold text-xl text-gray-800 dark:text-white">Extract & Reorder</p>
