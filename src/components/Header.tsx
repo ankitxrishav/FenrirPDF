@@ -10,7 +10,7 @@ export function Header() {
           href="/"
           className="flex items-center gap-2 font-bold text-xl text-primary"
         >
-          <Image src="/iconF.png" alt="FenrirPDF Logo" width={28} height={28} />
+          <Image src="/iconF.svg" alt="FenrirPDF Logo" width={28} height={28} />
           <span className="font-headline">fenrirPDF</span>
         </Link>
         <ThemeToggle />
