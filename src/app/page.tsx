@@ -80,7 +80,7 @@ export default function Home() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JsonLd) }}
         />
       <Header />
-      <main className="flex-1 flex items-center justify-center p-4 pb-24">
+      <div className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-4xl mx-auto bg-card/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/10 overflow-hidden animated-border">
             <div className="p-8 md:p-12 md:py-20">
                 <div className="mb-10 text-center">
@@ -112,7 +112,7 @@ export default function Home() {
                 </p>
             </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
