@@ -1,7 +1,6 @@
 
 # 🐺 fenrirPDF - Free & Private Online PDF Tools
 
-
 <p align="center">
   <a href="https://github.com/fenrir-app/fenrirpdf/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="License">
@@ -14,8 +13,9 @@
   </a>
 </p>
 
-
-**Live Site → [fenrirpdf.netlify.app](https://fenrirpdf.netlify.app)**
+<p align="center">
+  <strong>Live Site → <a href="https://fenrirpdf.netlify.app">fenrirpdf.netlify.app</a></strong>
+</p>
 
 ---
 
@@ -49,4 +49,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-Made with ❤️ by Fenrir
+<p align="center">Made with ❤️ by Fenrir</p>
