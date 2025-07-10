@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from '@/components/ui/toaster';
+import { Footer } from '@/components/Footer';
 
 const siteConfig = {
   name: 'fenrirPDF',
@@ -114,21 +114,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <div className="flex flex-col min-h-screen">
+            <div className="flex-1">
+              {children}
+            </div>
+            <Footer />
+          </div>
           <Toaster />
         </ThemeProvider>
-        <script
-          data-name="BMC-Widget"
-          data-cfasync="false"
-          src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
-          data-id="fenrirxankit"
-          data-description="Support me on Buy me a coffee!"
-          data-message=""
-          data-color="#40DCA5"
-          data-position="Right"
-          data-x_margin="18"
-          data-y_margin="18"
-        ></script>
       </body>
     </html>
   );
