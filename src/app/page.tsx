@@ -1,32 +1,36 @@
 import Link from 'next/link';
-import { Coffee } from 'lucide-react';
+import { Coffee, Moon, Sun } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const MergeIcon = () => (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M30 2H12C10.9 2 10.01 2.9 10.01 4L10 38C10 39.1 10.9 40 12 40H30C31.1 40 32 39.1 32 38V4C32 2.9 31.1 2 30 2ZM28 32H24V28H20V32H16V20H28V32Z" fill="#8A9BFF"/>
-      <path d="M36 8H34V42C34 43.1 33.1 44 32 44H14V46H32C34.21 46 36 44.21 36 42V8Z" fill="#6C7BFF"/>
+      <path d="M30 2H12C10.9 2 10.01 2.9 10.01 4L10 38C10 39.1 10.9 40 12 40H30C31.1 40 32 39.1 32 38V4C32 2.9 31.1 2 30 2ZM28 32H24V28H20V32H16V20H28V32Z" fill="currentColor"/>
+      <path d="M36 8H34V42C34 43.1 33.1 44 32 44H14V46H32C34.21 46 36 44.21 36 42V8Z" fill="currentColor" className="opacity-70"/>
     </svg>
 );
 
 const ExtractIcon = () => (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M32 2H12C9.79 2 8 3.79 8 6V42C8 44.21 9.79 46 12 46H36C38.21 46 40 44.21 40 42V10L32 2ZM28 28H16V24H28V28ZM28 20H16V16H28V20ZM30 12V4H38L30 12Z" fill="#8A9BFF"/>
+        <path d="M32 2H12C9.79 2 8 3.79 8 6V42C8 44.21 9.79 46 12 46H36C38.21 46 40 44.21 40 42V10L32 2ZM28 28H16V24H28V28ZM28 20H16V16H28V20ZM30 12V4H38L30 12Z" fill="currentColor"/>
     </svg>
 );
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 font-sans">
+    <div className="flex flex-col min-h-screen font-sans bg-gray-50 dark:bg-gray-900 bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800">
+       <div className="absolute top-4 right-4 z-10">
+          <ThemeToggle />
+        </div>
       <main className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-2xl mx-auto bg-white/50 dark:bg-black/20 backdrop-blur-xl border border-white/30 dark:border-black/30 rounded-3xl shadow-2xl shadow-gray-300/20 dark:shadow-black/20 overflow-hidden">
+        <div className="w-full max-w-2xl mx-auto bg-white/30 dark:bg-black/20 backdrop-blur-2xl border border-white/50 dark:border-black/30 rounded-3xl shadow-2xl shadow-gray-300/20 dark:shadow-black/20 overflow-hidden">
             <div className="p-8 md:p-12">
                 <header className="flex items-center gap-3 mb-10">
-                    <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
                         <svg width="24" height="24" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M64 0C28.6533 0 0 28.6533 0 64V128H42.6667V85.3333C42.6667 73.86 52.1933 64.3333 63.6667 64.3333H85.3333C108.52 64.3333 128 44.8533 128 21.6667C128 9.69333 118.307 0 106.333 0H64Z" fill="white"/>
+                            <path d="M64 0C28.6533 0 0 28.6533 0 64V128H42.6667V85.3333C42.6667 73.86 52.1933 64.3333 63.6667 64.3333H85.3333C108.52 64.3333 128 44.8533 128 21.6667C128 9.69333 118.307 0 106.333 0H64Z" fill="currentColor"/>
                         </svg>
                     </div>
-                    <span className="text-2xl font-bold text-gray-800 dark:text-white">FenrirPDF</span>
+                    <span className="text-2xl font-bold text-gray-800 dark:text-white">fenrirPDF</span>
                 </header>
 
                 <div className="mb-10 text-left">
@@ -40,15 +44,15 @@ export default function Home() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Link href="/merge">
-                    <div className="bg-white/70 dark:bg-white/10 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
+                    <div className="text-primary dark:text-accent-foreground/80 bg-white/50 dark:bg-white/10 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
                       <MergeIcon />
                       <p className="mt-4 font-bold text-lg text-gray-800 dark:text-white">Merge PDFs</p>
                     </div>
                   </Link>
                   <Link href="/edit">
-                    <div className="bg-white/70 dark:bg-white/10 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
+                    <div className="text-primary dark:text-accent-foreground/80 bg-white/50 dark:bg-white/10 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
                       <ExtractIcon />
-                      <p className="mt-4 font-bold text-lg text-gray-800 dark:text-white">Extract Pages</p>
+                      <p className="mt-4 font-bold text-lg text-gray-800 dark:text-white">Extract & Reorder</p>
                     </div>
                   </Link>
                 </div>
