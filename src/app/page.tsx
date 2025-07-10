@@ -1,7 +1,6 @@
 import Link from 'next/link';
-import { Coffee, Heart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { Header } from '@/components/Header';
-import { Button } from '@/components/ui/button';
 import type { Metadata } from 'next';
 
 const siteConfig = {
@@ -72,59 +71,51 @@ const JsonLd = {
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen font-sans bg-gray-50 dark:bg-gray-900 bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-black">
+    <div className="flex flex-col min-h-screen font-sans bg-background">
        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JsonLd) }}
         />
       <Header />
       <main className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-4xl mx-auto bg-white/30 dark:bg-black/20 backdrop-blur-2xl rounded-3xl shadow-2xl shadow-gray-300/20 dark:shadow-black/20 overflow-hidden animated-border">
+        <div className="w-full max-w-4xl mx-auto bg-card/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/10 overflow-hidden animated-border">
             <div className="p-10 md:p-16">
-                <div className="mb-12 text-center md:text-left">
-                  <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight">
+                <div className="mb-12 text-center">
+                  <h1 className="text-5xl md:text-6xl font-bold text-primary leading-tight tracking-tighter">
                     Merge. Extract. Done.
                   </h1>
-                  <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
+                  <p className="mt-4 text-lg text-foreground/80">
                     Your everyday PDF tool – lightweight, fast, no signup.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <Link href="/merge">
-                    <div className="text-primary dark:text-accent-foreground/80 bg-white/50 dark:bg-white/10 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
+                    <div className="text-primary bg-card/80 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
                       <MergeIcon />
-                      <p className="mt-4 font-bold text-xl text-gray-800 dark:text-white">Merge PDFs</p>
+                      <p className="mt-4 font-bold text-xl text-primary">Merge PDFs</p>
                     </div>
                   </Link>
                   <Link href="/extract">
-                    <div className="text-primary dark:text-accent-foreground/80 bg-white/50 dark:bg-white/10 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
+                    <div className="text-primary bg-card/80 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
                       <ExtractIcon />
-                      <p className="mt-4 font-bold text-xl text-gray-800 dark:text-white">Extract & Reorder</p>
+                      <p className="mt-4 font-bold text-xl text-primary">Extract & Reorder</p>
                     </div>
                   </Link>
                 </div>
                 
-                <p className="mt-12 text-center text-sm text-gray-500 dark:text-gray-400">
+                <p className="mt-12 text-center text-sm text-foreground/60">
                     All processing is done locally in your browser.
                 </p>
             </div>
         </div>
       </main>
-      <footer className="w-full p-6 text-sm text-muted-foreground relative">
+      <footer className="w-full p-6 text-sm text-muted-foreground">
           <div className="container mx-auto flex justify-center items-center">
             <p className="flex items-center justify-center gap-1.5">
               Made with <Heart className="h-4 w-4 text-red-500" /> by Fenrir
             </p>
           </div>
-        <div className="absolute bottom-6 right-6">
-            <a href="https://buymeacoffee.com/fenrirxankit" target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" className="rounded-full hover:bg-white/20 transition-transform duration-200 hover:scale-110 h-14 w-auto px-4 gap-2">
-                  <Coffee className="h-7 w-7 text-primary" />
-                  <span className="text-primary font-semibold hidden sm:inline">Buy me a coffee</span>
-              </Button>
-            </a>
-        </div>
       </footer>
     </div>
   );
