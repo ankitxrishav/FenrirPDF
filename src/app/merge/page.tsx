@@ -36,6 +36,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 
 if (typeof window !== "undefined") {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
@@ -115,40 +116,43 @@ export default function MergePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [filename, setFilename] = useState("merged.pdf");
+  const [progress, setProgress] = useState(0);
   const { toast } = useToast();
 
   const handleFilesChange = useCallback(
     async (uploadedFiles: File[]) => {
       if (!uploadedFiles || uploadedFiles.length === 0) return;
       setIsLoading(true);
+      setProgress(0);
       
       const newPages: Page[] = [];
       const newSourcePdfs = new Map(sourcePdfs);
 
       try {
-        for (const file of uploadedFiles) {
-          if (file.type !== "application/pdf") {
-             toast({
-              title: "Invalid file type",
-              description: `Skipped non-PDF file: ${file.name}`,
-              variant: "destructive",
-            });
-            continue;
-          }
-          
-          const pdfSourceId = `${file.name}-${file.lastModified}-${file.size}`;
-          const arrayBuffer = await file.arrayBuffer();
+        let processedPages = 0;
+        let totalPages = 0;
+        const pdfjsDocs = [];
 
+        // First pass: get total number of pages for progress calculation
+        for (const file of uploadedFiles) {
+            if (file.type !== "application/pdf") continue;
+            const arrayBuffer = await file.arrayBuffer();
+            const pdfjsDoc = await pdfjsLib.getDocument({ data: arrayBuffer.slice(0) }).promise;
+            totalPages += pdfjsDoc.numPages;
+            pdfjsDocs.push({file, pdfjsDoc});
+        }
+        
+        for (const { file, pdfjsDoc } of pdfjsDocs) {
+          const pdfSourceId = `${file.name}-${file.lastModified}-${file.size}`;
           if (!newSourcePdfs.has(pdfSourceId)) {
+            const arrayBuffer = await file.arrayBuffer();
             const pdfDoc = await PDFDocument.load(arrayBuffer);
             newSourcePdfs.set(pdfSourceId, {file, doc: pdfDoc});
           }
-          
-          const pdfjsDoc = await pdfjsLib.getDocument({ data: arrayBuffer.slice(0) }).promise;
 
           for (let i = 1; i <= pdfjsDoc.numPages; i++) {
             const page = await pdfjsDoc.getPage(i);
-            const viewport = page.getViewport({ scale: 0.5 });
+            const viewport = page.getViewport({ scale: 0.5 }); // Reduced scale for performance
             const canvas = document.createElement("canvas");
             const context = canvas.getContext("2d");
             canvas.height = viewport.height;
@@ -164,6 +168,8 @@ export default function MergePage() {
                 sourceFilename: file.name
               });
             }
+            processedPages++;
+            setProgress(Math.round((processedPages / totalPages) * 100));
           }
         }
         
@@ -219,8 +225,9 @@ export default function MergePage() {
       for (const page of pages) {
         const sourcePdfData = sourcePdfs.get(page.pdfSourceId);
         if (sourcePdfData) {
-          const sourcePdfDoc = sourcePdfData.doc;
-          const [copiedPage] = await newPdf.copyPages(sourcePdfDoc, [page.originalIndex]);
+          // Re-load the document to avoid context issues if it was modified
+          const reloadedDoc = await PDFDocument.load(await sourcePdfData.file.arrayBuffer());
+          const [copiedPage] = await newPdf.copyPages(reloadedDoc, [page.originalIndex]);
           newPdf.addPage(copiedPage);
         }
       }
@@ -241,11 +248,19 @@ export default function MergePage() {
     setSourcePdfs(new Map());
     setIsProcessing(false);
     setIsLoading(false);
+    setProgress(0);
   };
   
   const addMoreFiles = () => {
     document.getElementById('file-upload-input')?.click();
   }
+  
+  const handleFileUploadClick = () => {
+    const el = document.getElementById('file-upload-input');
+    if (el) {
+      el.click();
+    }
+  };
 
   const pageIds = useMemo(() => pages.map((p) => p.id), [pages]);
 
@@ -259,11 +274,12 @@ export default function MergePage() {
             className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[60vh] cursor-pointer transition-colors ${
               isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
             }`}
+            onClick={(e) => e.preventDefault()}
           >
             <input {...getInputProps()} id="file-upload-input" />
             <UploadCloud className="w-16 h-16 text-muted-foreground" />
             <h2 className="mt-4 text-2xl font-semibold">
-              Drag &amp; Drop or Click to Upload
+               Drag &amp; Drop or <span className="text-accent underline" onClick={handleFileUploadClick}>Click to Upload</span>
             </h2>
             <p className="mt-2 text-muted-foreground">
               Select multiple PDF files to merge their pages
@@ -271,10 +287,13 @@ export default function MergePage() {
           </div>
         ) : isLoading && pages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[60vh]">
-            <Loader2 className="w-16 h-16 animate-spin text-accent" />
-            <p className="mt-4 text-lg text-muted-foreground">
-              Processing your PDFs...
-            </p>
+            <div className="w-full max-w-md space-y-4">
+                <p className="text-lg text-center text-muted-foreground">
+                  Processing your PDFs...
+                </p>
+                <Progress value={progress} className="w-full" />
+                <p className="text-sm text-center text-muted-foreground">{progress}%</p>
+            </div>
           </div>
         ) : (
           <div className="space-y-6">
@@ -339,3 +358,5 @@ export default function MergePage() {
     </div>
   );
 }
+
+    
