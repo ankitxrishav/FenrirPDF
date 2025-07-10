@@ -1,4 +1,6 @@
-import { Heart } from 'lucide-react';
+import { Heart, Coffee } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export function Footer() {
   return (
@@ -11,10 +13,13 @@ export function Footer() {
       </div>
       
       {/* Button on the right */}
-      <footer className="fixed bottom-0 right-0 p-4 z-50">
-        <a href="https://buymeachai.ankushminda.com/fenrirxrishav" target="_blank" rel="noopener noreferrer">
-            <img src="https://buymeachai.ankushminda.com/assets/images/buymeachai-button.png" alt="Buy Me A Chai" width="200" />
-        </a>
+      <footer className="fixed bottom-4 right-4 z-50">
+         <Button asChild variant="outline" size="sm">
+            <Link href="https://buymeachai.ankushminda.com/fenrirxrishav" target="_blank" rel="noopener noreferrer">
+                <Coffee className="mr-2 h-4 w-4" />
+                Buy me a chai
+            </Link>
+        </Button>
       </footer>
     </>
   );
