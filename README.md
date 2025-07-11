@@ -25,6 +25,8 @@
 
 -   **📄 Merge PDFs**: Combine multiple PDF files into one seamless document.
 -   **✂️ Extract & Reorder Pages**: Easily select, reorder, and delete pages from any PDF.
+-   **#️⃣ Add Page Numbers**: Insert page numbers with customizable positioning and formatting.
+-   **🖋️ Add Watermark**: Stamp text or an image over your PDF pages to protect or brand your documents.
 -   **🔒 100% Private**: All processing is done entirely on your device in the browser. Your files never leave your computer.
 -   **💨 Blazing Fast**: Built with modern web technologies for a smooth and responsive experience, even with large files.
 -   **👆 Drag & Drop Interface**: An intuitive user interface for managing your documents and pages.
