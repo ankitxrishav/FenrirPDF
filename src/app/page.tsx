@@ -83,7 +83,7 @@ const JsonLd = {
 
 const FeatureCard = ({ href, icon: Icon, title, description }: { href: string, icon: React.ReactNode, title: string, description: string }) => (
     <Link href={href} className="flex-1">
-        <div className="h-full bg-card p-6 rounded-2xl flex flex-col items-center text-center w-full border border-transparent hover:border-accent hover:shadow-xl hover:scale-105 transition-all duration-300">
+        <div className="h-full bg-card p-6 rounded-2xl flex flex-col items-center text-center w-full border hover:border-accent hover:shadow-xl hover:scale-105 transition-all duration-300">
             <div className="bg-primary/10 text-primary rounded-full p-3">
                 {Icon}
             </div>
