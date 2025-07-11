@@ -13,7 +13,6 @@ import {
   Download,
   Loader2,
   X,
-  PlusCircle,
   Trash2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -269,9 +268,6 @@ export default function NumberPage() {
                         <Button onClick={handleDownload} disabled={isProcessing || isLoading || files.length === 0}>
                             {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
                             Number & Download All
-                        </Button>
-                        <Button variant="outline" onClick={handleFileUploadClick} disabled={isLoading}>
-                           <PlusCircle className="mr-2 h-4 w-4" /> Add More
                         </Button>
                         <Button variant="ghost" size="icon" onClick={clearAll}><X className="h-4 w-4"/></Button>
                     </div>
