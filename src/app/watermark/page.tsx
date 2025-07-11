@@ -4,17 +4,19 @@ import React, { useState, useCallback } from "react";
 import { PDFDocument, rgb, degrees, StandardFonts } from "pdf-lib";
 import { saveAs } from "file-saver";
 import { useDropzone } from 'react-dropzone';
+import * as pdfjsLib from "pdfjs-dist";
 
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import {
   UploadCloud,
-  FileText,
   Download,
   Loader2,
   X,
   Image as ImageIcon,
-  Type
+  Type,
+  PlusCircle,
+  Trash2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -22,12 +24,52 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+
+if (typeof window !== "undefined") {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
+}
+
+interface PdfFile {
+  id: string;
+  file: File;
+  previewUrl: string;
+}
+
+const FileThumbnail: React.FC<{ pdfFile: PdfFile; onDelete: (id: string) => void; }> = ({ pdfFile, onDelete }) => {
+  return (
+    <Card className="relative group overflow-hidden shadow-md">
+      <CardContent className="p-0 aspect-[3/4] flex items-center justify-center bg-muted">
+        <img
+          src={pdfFile.previewUrl}
+          alt={`Preview of ${pdfFile.file.name}`}
+          className="w-full h-full object-contain"
+        />
+      </CardContent>
+      <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          variant="destructive"
+          size="icon"
+          className="h-7 w-7"
+          onClick={() => onDelete(pdfFile.id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs text-center py-1 px-2 truncate">
+        {pdfFile.file.name}
+      </div>
+    </Card>
+  );
+};
 
 export default function WatermarkPage() {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<PdfFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [filename, setFilename] = useState("watermarked.pdf");
-  
+  const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [outputFilename, setOutputFilename] = useState("watermarked.pdf");
+
   // Watermark options
   const [watermarkType, setWatermarkType] = useState<"text" | "image">("text");
   const [text, setText] = useState("CONFIDENTIAL");
@@ -39,67 +81,113 @@ export default function WatermarkPage() {
 
   const { toast } = useToast();
 
-  const handleFileChange = useCallback(
-    async (uploadedFile: File | null) => {
-      if (!uploadedFile) return;
-      if (uploadedFile.type !== "application/pdf") {
-        toast({ title: "Invalid file type", description: "Please upload a PDF file.", variant: "destructive" });
-        return;
-      }
-      setFile(uploadedFile);
-      setFilename(`watermarked-${uploadedFile.name}`);
-    },
-    [toast]
-  );
+  const handleFilesChange = useCallback(async (uploadedFiles: File[]) => {
+    if (!uploadedFiles || uploadedFiles.length === 0) return;
+    setIsLoading(true);
+    setProgress(0);
+
+    const newPdfFiles: PdfFile[] = [];
+    let processedFiles = 0;
+    const totalFiles = uploadedFiles.length;
+
+    for (const file of uploadedFiles) {
+        if (file.type !== "application/pdf") {
+            toast({ title: "Invalid file type", description: `Skipped ${file.name} as it's not a PDF.`, variant: "destructive" });
+            continue;
+        };
+
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const page = await pdf.getPage(1);
+            const viewport = page.getViewport({ scale: 0.5 });
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            if (context) {
+                await page.render({ canvasContext: context, viewport }).promise;
+            }
+
+            newPdfFiles.push({
+                id: `${file.name}-${file.lastModified}`,
+                file,
+                previewUrl: canvas.toDataURL(),
+            });
+        } catch (error) {
+            console.error("Error processing file preview:", error);
+            toast({ title: "Preview Error", description: `Could not create a preview for ${file.name}.`, variant: "destructive" });
+        }
+        processedFiles++;
+        setProgress(Math.round((processedFiles / totalFiles) * 100));
+    }
+    setFiles(f => [...f, ...newPdfFiles]);
+    setIsLoading(false);
+  }, [toast]);
 
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
       setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     } else {
       toast({ title: "Invalid image type", description: "Please upload a PNG or JPG file.", variant: "destructive" });
     }
   };
   
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      handleFileChange(acceptedFiles[0]);
-    }
-  }, [handleFileChange]);
+    handleFilesChange(acceptedFiles);
+  }, [handleFilesChange]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    multiple: false,
     accept: { 'application/pdf': ['.pdf'] },
   });
 
+  const handleDelete = (id: string) => {
+    setFiles(currentFiles => currentFiles.filter(f => f.id !== id));
+  };
+
   const handleDownload = async () => {
-    if (!file) return;
+    if (files.length === 0) return;
     if (watermarkType === "image" && !imageFile) {
         toast({ title: "No image selected", description: "Please upload an image for the watermark.", variant: "destructive" });
         return;
     }
+    
+    if (files.length > 1) {
+        toast({ title: "Feature limitation", description: "Watermarking multiple PDFs at once will be supported soon. For now, please process one PDF at a time.", variant: "destructive" });
+        return;
+    }
+    const fileToProcess = files[0].file;
 
     setIsProcessing(true);
     try {
-      const existingPdfBytes = await file.arrayBuffer();
+      const existingPdfBytes = await fileToProcess.arrayBuffer();
       const pdfDoc = await PDFDocument.load(existingPdfBytes);
       const pages = pdfDoc.getPages();
       
-      let watermarkAsset: any;
-      if(watermarkType === 'text') {
+      let watermarkAsset: any = null;
+      if (watermarkType === 'text') {
         const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-        watermarkAsset = { font, text }
-      } else if(imageFile) {
+        watermarkAsset = { font, text };
+      } else if (imageFile) {
         const imageBytes = await imageFile.arrayBuffer();
-        watermarkAsset = await pdfDoc.embedPng(imageBytes);
+        if (imageFile.type === 'image/png') {
+          watermarkAsset = await pdfDoc.embedPng(imageBytes);
+        } else if (imageFile.type === 'image/jpeg') {
+          watermarkAsset = await pdfDoc.embedJpg(imageBytes);
+        }
       }
 
       for (const page of pages) {
         const { width, height } = page.getSize();
         
-        if (watermarkType === 'text') {
+        if (watermarkType === 'text' && watermarkAsset) {
           page.drawText(watermarkAsset.text, {
             x: width / 2 - (watermarkAsset.font.widthOfTextAtSize(watermarkAsset.text, fontSize) / 2),
             y: height / 2 - fontSize / 2,
@@ -124,7 +212,8 @@ export default function WatermarkPage() {
 
       const pdfBytes = await pdfDoc.save();
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      saveAs(blob, filename);
+      const finalFilename = files.length === 1 ? `watermarked-${files[0].file.name}` : outputFilename;
+      saveAs(blob, finalFilename);
     } catch (error) {
         console.error("Error adding watermark:", error);
         toast({ title: "Error", description: "Could not add watermark to the PDF.", variant: "destructive" });
@@ -134,11 +223,17 @@ export default function WatermarkPage() {
   };
   
   const clearAll = () => {
-    setFile(null);
+    setFiles([]);
     setIsProcessing(false);
+    setIsLoading(false);
     setImageFile(null);
     setImagePreview(null);
   }
+  
+  const handleFileUploadClick = () => {
+    const el = document.getElementById('file-upload-input');
+    if (el) el.click();
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -150,20 +245,21 @@ export default function WatermarkPage() {
               Stamp a text or image watermark onto your PDF files. Customize the appearance and placement with ease.
             </p>
         </div>
-        {!file ? (
+        {files.length === 0 && !isLoading ? (
           <div
             {...getRootProps()}
             className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[50vh] cursor-pointer transition-colors ${
               isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
             }`}
+            onClick={(e) => e.preventDefault()}
           >
-            <input {...getInputProps()} />
+            <input {...getInputProps()} id="file-upload-input"/>
             <UploadCloud className="w-16 h-16 text-muted-foreground" />
             <h2 className="mt-4 text-2xl font-semibold">
-              Drag & Drop or Click to Upload
+              Drag & Drop or <span className="text-accent underline" onClick={handleFileUploadClick}>Click to Upload</span>
             </h2>
             <p className="mt-2 text-muted-foreground">
-              Upload a single PDF to add a watermark
+              Upload one or more PDFs to add a watermark
             </p>
           </div>
         ) : (
@@ -212,32 +308,45 @@ export default function WatermarkPage() {
                               <Slider value={[rotation]} onValueChange={([v]) => setRotation(v)} min={-180} max={180} step={5} />
                            </div>
                         </div>
-
+                         {files.length > 1 && <div className="space-y-2 pt-6 border-t mt-6">
+                            <Label htmlFor="filename">Output Filename (for multiple files)</Label>
+                            <Input id="filename" value={outputFilename} onChange={e => setOutputFilename(e.target.value)} />
+                        </div>}
                     </CardContent>
                 </Card>
             </div>
             <div className="md:col-span-2 space-y-6">
-                <div className="flex flex-wrap gap-4 items-center justify-between p-4 rounded-lg bg-card border">
-                    <div className="flex items-center gap-4">
-                        <FileText className="w-8 h-8 text-primary"/>
-                        <span className="font-semibold">{file.name}</span>
-                    </div>
+                 <div className="flex flex-wrap gap-4 items-center justify-between p-4 rounded-lg bg-card border">
+                    <h2 className="text-xl font-semibold">Your Files ({files.length})</h2>
                     <div className="flex flex-wrap items-center gap-4">
-                        <Button onClick={handleDownload} disabled={isProcessing}>
+                        <Button onClick={handleDownload} disabled={isProcessing || isLoading || files.length === 0}>
                             {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
                             Watermark & Download
+                        </Button>
+                         <Button variant="outline" onClick={handleFileUploadClick} disabled={isLoading}>
+                           <PlusCircle className="mr-2 h-4 w-4" /> Add More
                         </Button>
                         <Button variant="ghost" size="icon" onClick={clearAll}><X className="h-4 w-4"/></Button>
                     </div>
                 </div>
-
-                 <div className="space-y-2">
-                    <Label htmlFor="filename">Output Filename</Label>
-                    <Input id="filename" value={filename} onChange={e => setFilename(e.target.value)} />
-                </div>
-                
-                 <div className="aspect-video bg-muted rounded-lg flex items-center justify-center p-4">
-                    <p className="text-muted-foreground">PDF preview will be available soon.</p>
+                 {isLoading && (
+                    <div className="flex flex-col items-center justify-center">
+                        <div className="w-full max-w-md space-y-2">
+                            <Progress value={progress} className="w-full" />
+                            <p className="text-sm text-center text-muted-foreground">{progress}%</p>
+                        </div>
+                    </div>
+                )}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {files.map((pdfFile) => (
+                        <FileThumbnail key={pdfFile.id} pdfFile={pdfFile} onDelete={handleDelete} />
+                    ))}
+                     {isLoading && (
+                      <div className="flex flex-col items-center justify-center aspect-[3/4] p-4 border border-dashed rounded-lg">
+                        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                        <p className="mt-2 text-sm text-center text-muted-foreground">Loading...</p>
+                      </div>
+                    )}
                 </div>
             </div>
           </div>
