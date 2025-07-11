@@ -78,9 +78,9 @@ const JsonLd = {
 
 const FeatureCard = ({ href, icon: Icon, title, description, large = false }: { href: string, icon: React.ElementType, title: string, description: string, large?: boolean }) => (
   <Link href={href} className="flex">
-    <div className={`h-full text-primary bg-card/80 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center w-full ${large ? 'md:p-12' : 'md:p-8'}`}>
-      <Icon className={large ? "w-16 h-16" : "w-12 h-12"} />
-      <p className={`mt-4 font-bold text-primary ${large ? 'text-2xl' : 'text-xl'}`}>{title}</p>
+    <div className={`h-full text-primary bg-card/80 p-6 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center w-full`}>
+      <Icon className={large ? "w-12 h-12" : "w-10 h-10"} />
+      <p className={`mt-4 font-bold text-primary ${large ? 'text-xl' : 'text-lg'}`}>{title}</p>
       <p className="mt-2 text-sm text-foreground/70">{description}</p>
     </div>
   </Link>
@@ -96,25 +96,25 @@ export default function Home() {
         />
       <Header />
       <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-5xl mx-auto bg-card/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/10 overflow-hidden animated-border">
-            <div className="p-8 md:p-12">
-                <div className="mb-10 text-center">
-                  <h1 className="text-4xl md:text-5xl font-bold text-primary leading-tight tracking-tighter">
+        <div className="w-full max-w-4xl mx-auto bg-card/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/10 overflow-hidden animated-border">
+            <div className="p-6 md:p-8">
+                <div className="mb-8 text-center">
+                  <h1 className="text-3xl md:text-4xl font-bold text-primary leading-tight tracking-tighter">
                     Simple, Private, Free PDF Tools
                   </h1>
-                  <p className="mt-4 text-lg text-foreground/80 max-w-3xl mx-auto">
+                  <p className="mt-3 text-base text-foreground/80 max-w-2xl mx-auto">
                     Your everyday PDF tool – lightweight, fast, no signup. All processing is done locally in your browser.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FeatureCard href="/merge" icon={Merge} title="Merge PDFs" description="Combine multiple PDFs into one." large />
                     <FeatureCard href="/extract" icon={Scissors} title="Extract & Reorder" description="Reorder, rotate, and delete pages." large />
                     <FeatureCard href="/number" icon={ListOrdered} title="Add Page Numbers" description="Insert page numbers into your PDF." />
                     <FeatureCard href="/watermark" icon={FileSignature} title="Add Watermark" description="Stamp text or an image over your PDF." />
                 </div>
                 
-                <p className="mt-10 text-center text-sm text-foreground/60">
+                <p className="mt-8 text-center text-xs text-foreground/60">
                     All processing is done locally in your browser for 100% privacy.
                 </p>
             </div>
