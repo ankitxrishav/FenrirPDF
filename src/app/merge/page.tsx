@@ -316,7 +316,7 @@ export default function MergePage() {
                   </Button>
                   <Button variant="outline" onClick={addMoreFiles} disabled={isLoading}>
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    Add More
+                    Upload Another
                   </Button>
                   <Button variant="ghost" size="icon" onClick={clearAll}><X className="h-4 w-4"/></Button>
                 </div>
