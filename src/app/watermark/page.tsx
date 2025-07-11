@@ -153,70 +153,82 @@ export default function WatermarkPage() {
   };
 
   const handleDownload = async () => {
-    if (files.length === 0) return;
+    if (files.length === 0) {
+        toast({ title: "No files to process", description: "Please upload at least one PDF.", variant: "destructive" });
+        return;
+    }
     if (watermarkType === "image" && !imageFile) {
         toast({ title: "No image selected", description: "Please upload an image for the watermark.", variant: "destructive" });
         return;
     }
     
-    if (files.length > 1) {
-        toast({ title: "Feature limitation", description: "Watermarking multiple PDFs at once will be supported soon. For now, please process one PDF at a time.", variant: "destructive" });
-        return;
-    }
-    const fileToProcess = files[0].file;
-
     setIsProcessing(true);
     try {
-      const existingPdfBytes = await fileToProcess.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
-      const pages = pdfDoc.getPages();
-      
       let watermarkAsset: any = null;
-      if (watermarkType === 'text') {
-        const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-        watermarkAsset = { font, text };
-      } else if (imageFile) {
+      let watermarkAssetType: 'text' | 'image' | null = null;
+      
+      if (watermarkType === 'image' && imageFile) {
         const imageBytes = await imageFile.arrayBuffer();
         if (imageFile.type === 'image/png') {
-          watermarkAsset = await pdfDoc.embedPng(imageBytes);
+          watermarkAsset = imageBytes;
+          watermarkAssetType = 'image';
         } else if (imageFile.type === 'image/jpeg') {
-          watermarkAsset = await pdfDoc.embedJpg(imageBytes);
+          watermarkAsset = imageBytes;
+          watermarkAssetType = 'image';
         }
       }
 
-      for (const page of pages) {
-        const { width, height } = page.getSize();
-        
-        if (watermarkType === 'text' && watermarkAsset) {
-          page.drawText(watermarkAsset.text, {
-            x: width / 2 - (watermarkAsset.font.widthOfTextAtSize(watermarkAsset.text, fontSize) / 2),
-            y: height / 2 - fontSize / 2,
-            size: fontSize,
-            font: watermarkAsset.font,
-            color: rgb(0, 0, 0),
-            opacity: opacity,
-            rotate: degrees(rotation),
-          });
-        } else if (watermarkAsset) {
-          const scaled = watermarkAsset.scale(0.5);
-           page.drawImage(watermarkAsset, {
-            x: width / 2 - scaled.width / 2,
-            y: height / 2 - scaled.height / 2,
-            width: scaled.width,
-            height: scaled.height,
-            opacity: opacity,
-            rotate: degrees(rotation),
-          });
-        }
-      }
+      for (const pdfFile of files) {
+          const existingPdfBytes = await pdfFile.file.arrayBuffer();
+          const pdfDoc = await PDFDocument.load(existingPdfBytes);
+          
+          let embeddedAsset;
+          if (watermarkAssetType === 'image') {
+              if (imageFile?.type === 'image/png') {
+                embeddedAsset = await pdfDoc.embedPng(watermarkAsset);
+              } else if (imageFile?.type === 'image/jpeg') {
+                embeddedAsset = await pdfDoc.embedJpg(watermarkAsset);
+              }
+          } else { // text
+              embeddedAsset = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+          }
 
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      const finalFilename = files.length === 1 ? `watermarked-${files[0].file.name}` : outputFilename;
-      saveAs(blob, finalFilename);
+          const pages = pdfDoc.getPages();
+          for (const page of pages) {
+            const { width, height } = page.getSize();
+            
+            if (watermarkType === 'text') {
+              page.drawText(text, {
+                x: width / 2 - (embeddedAsset.widthOfTextAtSize(text, fontSize) / 2),
+                y: height / 2 - fontSize / 2,
+                size: fontSize,
+                font: embeddedAsset,
+                color: rgb(0, 0, 0),
+                opacity: opacity,
+                rotate: degrees(rotation),
+              });
+            } else if (embeddedAsset) {
+              const scaled = embeddedAsset.scale(0.5);
+               page.drawImage(embeddedAsset, {
+                x: width / 2 - scaled.width / 2,
+                y: height / 2 - scaled.height / 2,
+                width: scaled.width,
+                height: scaled.height,
+                opacity: opacity,
+                rotate: degrees(rotation),
+              });
+            }
+          }
+
+          const pdfBytes = await pdfDoc.save();
+          const blob = new Blob([pdfBytes], { type: "application/pdf" });
+          const finalFilename = `watermarked-${pdfFile.file.name}`;
+          saveAs(blob, finalFilename);
+      }
+      toast({ title: "Success", description: `${files.length} PDF(s) have been watermarked and downloaded.` });
     } catch (error) {
         console.error("Error adding watermark:", error);
-        toast({ title: "Error", description: "Could not add watermark to the PDF.", variant: "destructive" });
+        toast({ title: "Error", description: "Could not add watermark to one or more PDFs.", variant: "destructive" });
     } finally {
         setIsProcessing(false);
     }
@@ -309,8 +321,9 @@ export default function WatermarkPage() {
                            </div>
                         </div>
                          {files.length > 1 && <div className="space-y-2 pt-6 border-t mt-6">
-                            <Label htmlFor="filename">Output Filename (for multiple files)</Label>
-                            <Input id="filename" value={outputFilename} onChange={e => setOutputFilename(e.target.value)} />
+                            <Label htmlFor="filename">Output Filename</Label>
+                            <Input id="filename" value={outputFilename} onChange={e => setOutputFilename(e.target.value)} disabled/>
+                             <p className="text-xs text-muted-foreground">Individual files will be downloaded.</p>
                         </div>}
                     </CardContent>
                 </Card>
@@ -321,7 +334,7 @@ export default function WatermarkPage() {
                     <div className="flex flex-wrap items-center gap-4">
                         <Button onClick={handleDownload} disabled={isProcessing || isLoading || files.length === 0}>
                             {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
-                            Watermark & Download
+                            Watermark & Download All
                         </Button>
                          <Button variant="outline" onClick={handleFileUploadClick} disabled={isLoading}>
                            <PlusCircle className="mr-2 h-4 w-4" /> Add More

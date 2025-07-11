@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { saveAs } from "file-saver";
 import { useDropzone } from 'react-dropzone';
@@ -133,49 +133,49 @@ export default function NumberPage() {
   };
 
   const handleDownload = async () => {
-    if (files.length === 0) return;
-
-    if (files.length > 1) {
-        toast({ title: "Feature limitation", description: "Numbering multiple PDFs at once will be supported soon. For now, please process one PDF at a time.", variant: "destructive" });
+    if (files.length === 0) {
+        toast({ title: "No files to process", description: "Please upload at least one PDF.", variant: "destructive" });
         return;
     }
-    const fileToProcess = files[0].file;
-
+    
     setIsProcessing(true);
     try {
-      const existingPdfBytes = await fileToProcess.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(existingPdfBytes);
-      const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
-      const pages = pdfDoc.getPages();
-      const totalPages = pages.length;
+      for (const pdfFile of files) {
+          const existingPdfBytes = await pdfFile.file.arrayBuffer();
+          const pdfDoc = await PDFDocument.load(existingPdfBytes);
+          const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+          const pages = pdfDoc.getPages();
+          const totalPages = pages.length;
 
-      for (let i = 0; i < totalPages; i++) {
-        const page = pages[i];
-        const { width, height } = page.getSize();
-        const pageNumberText = format
-          .replace("{p}", String(i + 1))
-          .replace("{n}", String(totalPages));
-        
-        const textWidth = helveticaFont.widthOfTextAtSize(pageNumberText, fontSize);
-        
-        let x, y;
-        const yMargin = position.includes("top") ? height - margin - fontSize : margin;
-        const xMargin = (() => {
-            if (position.includes("left")) return margin;
-            if (position.includes("center")) return width / 2 - textWidth / 2;
-            return width - margin - textWidth; // right
-        })();
-        
-        page.drawText(pageNumberText, { x: xMargin, y: yMargin, size: fontSize, font: helveticaFont, color: rgb(0, 0, 0) });
+          for (let i = 0; i < totalPages; i++) {
+            const page = pages[i];
+            const { width, height } = page.getSize();
+            const pageNumberText = format
+              .replace("{p}", String(i + 1))
+              .replace("{n}", String(totalPages));
+            
+            const textWidth = helveticaFont.widthOfTextAtSize(pageNumberText, fontSize);
+            
+            let x, y;
+            const yMargin = position.includes("top") ? height - margin - fontSize : margin;
+            const xMargin = (() => {
+                if (position.includes("left")) return margin;
+                if (position.includes("center")) return width / 2 - textWidth / 2;
+                return width - margin - textWidth; // right
+            })();
+            
+            page.drawText(pageNumberText, { x: xMargin, y: yMargin, size: fontSize, font: helveticaFont, color: rgb(0, 0, 0) });
+          }
+
+          const pdfBytes = await pdfDoc.save();
+          const blob = new Blob([pdfBytes], { type: "application/pdf" });
+          const finalFilename = `numbered-${pdfFile.file.name}`;
+          saveAs(blob, finalFilename);
       }
-
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      const finalFilename = files.length === 1 ? `numbered-${files[0].file.name}` : outputFilename;
-      saveAs(blob, finalFilename);
+      toast({ title: "Success", description: `${files.length} PDF(s) have been numbered and downloaded.` });
     } catch (error) {
         console.error("Error adding page numbers:", error);
-        toast({ title: "Error", description: "Could not add page numbers to the PDF.", variant: "destructive" });
+        toast({ title: "Error", description: "Could not add page numbers to one or more PDFs.", variant: "destructive" });
     } finally {
         setIsProcessing(false);
     }
@@ -256,7 +256,8 @@ export default function NumberPage() {
                         </div>
                          {files.length > 1 && <div className="space-y-2">
                             <Label htmlFor="filename">Output Filename (for multiple files)</Label>
-                            <Input id="filename" value={outputFilename} onChange={e => setOutputFilename(e.target.value)} />
+                            <Input id="filename" value={outputFilename} onChange={e => setOutputFilename(e.target.value)} disabled/>
+                            <p className="text-xs text-muted-foreground">Individual files will be downloaded.</p>
                         </div>}
                     </CardContent>
                 </Card>
@@ -267,7 +268,7 @@ export default function NumberPage() {
                     <div className="flex flex-wrap items-center gap-4">
                         <Button onClick={handleDownload} disabled={isProcessing || isLoading || files.length === 0}>
                             {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
-                            Number & Download
+                            Number & Download All
                         </Button>
                         <Button variant="outline" onClick={handleFileUploadClick} disabled={isLoading}>
                            <PlusCircle className="mr-2 h-4 w-4" /> Add More
