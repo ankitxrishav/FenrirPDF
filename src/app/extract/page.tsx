@@ -149,6 +149,8 @@ export default function ExtractPage() {
         });
         return;
       }
+      // Reset state for new file
+      clearAll();
       setFile(uploadedFile);
       setFilename(`edited-${uploadedFile.name}`);
       setIsLoading(true);
@@ -199,9 +201,11 @@ export default function ExtractPage() {
     }
   }, [handleFileChange]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
     multiple: false,
+    noClick: true,
+    noKeyboard: true,
     accept: { 'application/pdf': ['.pdf'] },
   });
 
@@ -279,13 +283,6 @@ export default function ExtractPage() {
     setIsProcessing(false);
     setSelectionMode(false);
   }
-  
-  const handleFileUploadClick = () => {
-    const el = document.getElementById('file-upload');
-    if (el) {
-      el.click();
-    }
-  };
 
   const pageIds = useMemo(() => pages.map((p) => p.id), [pages]);
 
@@ -305,16 +302,11 @@ export default function ExtractPage() {
             className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[50vh] cursor-pointer transition-colors ${
               isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
             }`}
-             onClick={(e) => e.preventDefault()} // prevent default to stop opening file dialog twice
           >
-            <input
-              {...getInputProps()}
-              id="file-upload"
-              className="hidden"
-            />
+            <input {...getInputProps()} />
             <UploadCloud className="w-16 h-16 text-muted-foreground" />
             <h2 className="mt-4 text-2xl font-semibold">
-              Drag &amp; Drop or <span className="text-accent underline" onClick={handleFileUploadClick}>Click to Upload</span>
+              Drag &amp; Drop or <span className="text-accent underline" onClick={open}>Click to Upload</span>
             </h2>
             <p className="mt-2 text-muted-foreground">
               Upload a single PDF to get started
@@ -346,7 +338,7 @@ export default function ExtractPage() {
                     {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
                     {selectionMode && selectedPages.size > 0 ? `Download ${selectedPages.size} Pages` : "Download PDF"}
                   </Button>
-                  <Button variant="outline" onClick={handleFileUploadClick}>
+                  <Button variant="outline" onClick={open}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Upload Another
                   </Button>

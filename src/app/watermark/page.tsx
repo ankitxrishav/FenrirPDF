@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useCallback } from "react";
@@ -67,7 +68,6 @@ export default function WatermarkPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [outputFilename, setOutputFilename] = useState("watermarked.pdf");
 
   // Watermark options
   const [watermarkType, setWatermarkType] = useState<"text" | "image">("text");
@@ -142,8 +142,10 @@ export default function WatermarkPage() {
     handleFilesChange(acceptedFiles);
   }, [handleFilesChange]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
+    noClick: true,
+    noKeyboard: true,
     accept: { 'application/pdf': ['.pdf'] },
   });
 
@@ -240,11 +242,6 @@ export default function WatermarkPage() {
     setImageFile(null);
     setImagePreview(null);
   }
-  
-  const handleFileUploadClick = () => {
-    const el = document.getElementById('file-upload-input');
-    if (el) el.click();
-  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -262,12 +259,11 @@ export default function WatermarkPage() {
             className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[50vh] cursor-pointer transition-colors ${
               isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
             }`}
-            onClick={(e) => e.preventDefault()}
           >
-            <input {...getInputProps()} id="file-upload-input"/>
+            <input {...getInputProps()}/>
             <UploadCloud className="w-16 h-16 text-muted-foreground" />
             <h2 className="mt-4 text-2xl font-semibold">
-              Drag & Drop or <span className="text-accent underline" onClick={handleFileUploadClick}>Click to Upload</span>
+              Drag & Drop or <span className="text-accent underline" onClick={open}>Click to Upload</span>
             </h2>
             <p className="mt-2 text-muted-foreground">
               Upload one or more PDFs to add a watermark
@@ -319,11 +315,6 @@ export default function WatermarkPage() {
                               <Slider value={[rotation]} onValueChange={([v]) => setRotation(v)} min={-180} max={180} step={5} />
                            </div>
                         </div>
-                         {files.length > 1 && <div className="space-y-2 pt-6 border-t mt-6">
-                            <Label htmlFor="filename">Output Filename</Label>
-                            <Input id="filename" value={outputFilename} onChange={e => setOutputFilename(e.target.value)} disabled/>
-                             <p className="text-xs text-muted-foreground">Individual files will be downloaded.</p>
-                        </div>}
                     </CardContent>
                 </Card>
             </div>
@@ -331,6 +322,9 @@ export default function WatermarkPage() {
                  <div className="flex flex-wrap gap-4 items-center justify-between p-4 rounded-lg bg-card border">
                     <h2 className="text-xl font-semibold">Your Files ({files.length})</h2>
                     <div className="flex flex-wrap items-center gap-4">
+                        <Button onClick={open} variant="outline" disabled={isLoading}>
+                            Upload More
+                        </Button>
                         <Button onClick={handleDownload} disabled={isProcessing || isLoading || files.length === 0}>
                             {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
                             Watermark & Download All

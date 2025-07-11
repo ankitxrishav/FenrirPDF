@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useCallback } from "react";
@@ -70,7 +71,6 @@ export default function NumberPage() {
   const [margin, setMargin] = useState(36);
   const [fontSize, setFontSize] = useState(12);
   const [format, setFormat] = useState("Page {p} of {n}");
-  const [outputFilename, setOutputFilename] = useState("numbered.pdf");
 
   const { toast } = useToast();
   
@@ -122,8 +122,10 @@ export default function NumberPage() {
     handleFilesChange(acceptedFiles);
   }, [handleFilesChange]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
+    noClick: true,
+    noKeyboard: true,
     accept: { 'application/pdf': ['.pdf'] },
   });
 
@@ -186,11 +188,6 @@ export default function NumberPage() {
     setIsLoading(false);
   }
 
-  const handleFileUploadClick = () => {
-    const el = document.getElementById('file-upload-input');
-    if (el) el.click();
-  };
-
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -207,12 +204,11 @@ export default function NumberPage() {
             className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[50vh] cursor-pointer transition-colors ${
               isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
             }`}
-             onClick={(e) => e.preventDefault()}
           >
-            <input {...getInputProps()} id="file-upload-input" />
+            <input {...getInputProps()} />
             <UploadCloud className="w-16 h-16 text-muted-foreground" />
             <h2 className="mt-4 text-2xl font-semibold">
-              Drag & Drop or <span className="text-accent underline" onClick={handleFileUploadClick}>Click to Upload</span>
+              Drag & Drop or <span className="text-accent underline" onClick={open}>Click to Upload</span>
             </h2>
             <p className="mt-2 text-muted-foreground">
               Upload one or more PDFs to add page numbers
@@ -253,11 +249,6 @@ export default function NumberPage() {
                             <Input id="format" value={format} onChange={e => setFormat(e.target.value)}/>
                             <p className="text-xs text-muted-foreground">Use {"{p}"} for page number and {"{n}"} for total pages.</p>
                         </div>
-                         {files.length > 1 && <div className="space-y-2">
-                            <Label htmlFor="filename">Output Filename (for multiple files)</Label>
-                            <Input id="filename" value={outputFilename} onChange={e => setOutputFilename(e.target.value)} disabled/>
-                            <p className="text-xs text-muted-foreground">Individual files will be downloaded.</p>
-                        </div>}
                     </CardContent>
                 </Card>
             </div>
@@ -265,6 +256,9 @@ export default function NumberPage() {
                 <div className="flex flex-wrap gap-4 items-center justify-between p-4 rounded-lg bg-card border">
                     <h2 className="text-xl font-semibold">Your Files ({files.length})</h2>
                     <div className="flex flex-wrap items-center gap-4">
+                        <Button onClick={open} variant="outline" disabled={isLoading}>
+                            Upload More
+                        </Button>
                         <Button onClick={handleDownload} disabled={isProcessing || isLoading || files.length === 0}>
                             {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
                             Number & Download All
