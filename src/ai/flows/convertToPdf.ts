@@ -81,6 +81,11 @@ const convertToPdfFlow = ai.defineFlow(
         .map(file => `--- NEW FILE: ${file.filename} ---\n\n${file.content}`)
         .join('\n\n\n');
 
+    // Sanitize the content to remove characters not supported by WinAnsi encoding.
+    // This regex removes control characters except for newline, carriage return, and tab.
+    const sanitizedContent = combinedContent.replace(/[^\x20-\x7E\x0A\x0D\x09]/g, '');
+
+
     const pdfDoc = await PDFDocument.create();
     const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
     let page = pdfDoc.addPage();
@@ -90,7 +95,7 @@ const convertToPdfFlow = ai.defineFlow(
     const x = margin;
     let y = height - margin;
 
-    const lines = combinedContent.split('\n');
+    const lines = sanitizedContent.split('\n');
 
     for (const line of lines) {
         if (y < margin) {
