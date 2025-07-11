@@ -190,8 +190,10 @@ export default function MergePage() {
     handleFilesChange(acceptedFiles);
   }, [handleFilesChange]);
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
+    noClick: true,
+    noKeyboard: true,
     accept: { 'application/pdf': ['.pdf'] },
   });
   
@@ -251,17 +253,6 @@ export default function MergePage() {
     setProgress(0);
   };
   
-  const addMoreFiles = () => {
-    document.getElementById('file-upload-input')?.click();
-  }
-  
-  const handleFileUploadClick = () => {
-    const el = document.getElementById('file-upload-input');
-    if (el) {
-      el.click();
-    }
-  };
-
   const pageIds = useMemo(() => pages.map((p) => p.id), [pages]);
 
   return (
@@ -280,12 +271,11 @@ export default function MergePage() {
             className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[50vh] cursor-pointer transition-colors ${
               isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
             }`}
-            onClick={(e) => e.preventDefault()}
           >
-            <input {...getInputProps()} id="file-upload-input" />
+            <input {...getInputProps()} />
             <UploadCloud className="w-16 h-16 text-muted-foreground" />
             <h2 className="mt-4 text-2xl font-semibold">
-               Drag &amp; Drop or <span className="text-accent underline" onClick={handleFileUploadClick}>Click to Upload</span>
+               Drag &amp; Drop or <span className="text-accent underline" onClick={open}>Click to Upload</span>
             </h2>
             <p className="mt-2 text-muted-foreground">
               Select multiple PDF files to merge their pages
@@ -314,7 +304,7 @@ export default function MergePage() {
                     )}
                     Merge & Download
                   </Button>
-                  <Button variant="outline" onClick={addMoreFiles} disabled={isLoading}>
+                  <Button variant="outline" onClick={open} disabled={isLoading}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Upload Another
                   </Button>
