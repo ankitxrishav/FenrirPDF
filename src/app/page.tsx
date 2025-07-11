@@ -76,9 +76,9 @@ export default function Home() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JsonLd) }}
         />
       <Header />
-      <div className="flex-1 flex items-center justify-center p-4 pb-24">
-        <div className="w-full max-w-6xl mx-auto bg-card/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/10 overflow-hidden animated-border">
-            <div className="p-8 md:p-12 md:py-20">
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-5xl mx-auto bg-card/60 backdrop-blur-xl rounded-3xl shadow-2xl shadow-primary/10 overflow-hidden animated-border">
+            <div className="p-8 md:p-12">
                 <div className="mb-10 text-center">
                   <h1 className="text-4xl md:text-5xl font-bold text-primary leading-tight tracking-tighter">
                     Simple, Private, Free PDF Tools
@@ -89,22 +89,22 @@ export default function Home() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Link href="/merge">
-                    <div className="text-primary bg-card/80 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
+                  <Link href="/merge" className="flex">
+                    <div className="h-full text-primary bg-card/80 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center w-full">
                       <Merge className="w-12 h-12" />
                       <p className="mt-4 font-bold text-xl text-primary">Merge PDFs</p>
                       <p className="mt-2 text-sm text-foreground/70">Combine multiple PDFs into one.</p>
                     </div>
                   </Link>
-                  <Link href="/extract">
-                    <div className="text-primary bg-card/80 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
+                  <Link href="/extract" className="flex">
+                    <div className="h-full text-primary bg-card/80 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center w-full">
                       <Scissors className="w-12 h-12" />
                       <p className="mt-4 font-bold text-xl text-primary">Extract & Reorder</p>
                       <p className="mt-2 text-sm text-foreground/70">Reorder, rotate, and delete pages.</p>
                     </div>
                   </Link>
-                  <Link href="/convert">
-                    <div className="text-primary bg-card/80 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center">
+                  <Link href="/convert" className="flex">
+                    <div className="h-full text-primary bg-card/80 p-8 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center w-full">
                       <FileStack className="w-12 h-12" />
                       <p className="mt-4 font-bold text-xl text-primary">Convert to PDF</p>
                       <p className="mt-2 text-sm text-foreground/70">Turn DOCX, PPTX, and more into PDF.</p>
