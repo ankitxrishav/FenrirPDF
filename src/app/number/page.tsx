@@ -14,7 +14,8 @@ import {
   Download,
   Loader2,
   X,
-  Trash2
+  Trash2,
+  PlusCircle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -186,6 +187,7 @@ export default function NumberPage() {
     setFiles([]);
     setIsProcessing(false);
     setIsLoading(false);
+    toast({ title: "Cleared", description: "All files have been removed." });
   }
 
   return (
@@ -201,14 +203,14 @@ export default function NumberPage() {
         {files.length === 0 && !isLoading ? (
           <div
             {...getRootProps()}
-            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[50vh] cursor-pointer transition-colors ${
+            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[50vh] transition-colors ${
               isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
             }`}
           >
             <input {...getInputProps()} />
             <UploadCloud className="w-16 h-16 text-muted-foreground" />
             <h2 className="mt-4 text-2xl font-semibold">
-              Drag & Drop or <span className="text-accent underline" onClick={open}>Click to Upload</span>
+              Drag & Drop or <button type="button" className="text-accent underline" onClick={open}>Click to Upload</button>
             </h2>
             <p className="mt-2 text-muted-foreground">
               Upload one or more PDFs to add page numbers
@@ -257,6 +259,7 @@ export default function NumberPage() {
                     <h2 className="text-xl font-semibold">Your Files ({files.length})</h2>
                     <div className="flex flex-wrap items-center gap-4">
                         <Button onClick={open} variant="outline" disabled={isLoading}>
+                             <PlusCircle className="mr-2 h-4 w-4" />
                             Upload More
                         </Button>
                         <Button onClick={handleDownload} disabled={isProcessing || isLoading || files.length === 0}>
@@ -266,7 +269,7 @@ export default function NumberPage() {
                         <Button variant="ghost" size="icon" onClick={clearAll}><X className="h-4 w-4"/></Button>
                     </div>
                 </div>
-                {isLoading && (
+                {isLoading && files.length === 0 && (
                     <div className="flex flex-col items-center justify-center">
                         <div className="w-full max-w-md space-y-2">
                             <Progress value={progress} className="w-full" />
@@ -274,7 +277,11 @@ export default function NumberPage() {
                         </div>
                     </div>
                 )}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div 
+                  {...getRootProps()}
+                  className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-4 border border-dashed rounded-lg min-h-[200px] transition-colors ${isDragActive ? 'border-primary bg-primary/10' : 'border-transparent'}`}
+                >
+                    <input {...getInputProps()} />
                     {files.map((pdfFile) => (
                         <FileThumbnail key={pdfFile.id} pdfFile={pdfFile} onDelete={handleDelete} />
                     ))}
@@ -282,6 +289,7 @@ export default function NumberPage() {
                       <div className="flex flex-col items-center justify-center aspect-[3/4] p-4 border border-dashed rounded-lg">
                         <Loader2 className="w-8 h-8 animate-spin text-accent" />
                         <p className="mt-2 text-sm text-center text-muted-foreground">Loading...</p>
+                        <Progress value={progress} className="w-full mt-2" />
                       </div>
                     )}
                 </div>

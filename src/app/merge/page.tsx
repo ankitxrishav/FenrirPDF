@@ -251,6 +251,7 @@ export default function MergePage() {
     setIsProcessing(false);
     setIsLoading(false);
     setProgress(0);
+    toast({ title: "Cleared", description: "All files and settings have been cleared." });
   };
   
   const pageIds = useMemo(() => pages.map((p) => p.id), [pages]);
@@ -268,14 +269,14 @@ export default function MergePage() {
         {pages.length === 0 && !isLoading ? (
           <div
             {...getRootProps()}
-            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[50vh] cursor-pointer transition-colors ${
+            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[50vh] transition-colors ${
               isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
             }`}
           >
             <input {...getInputProps()} />
             <UploadCloud className="w-16 h-16 text-muted-foreground" />
             <h2 className="mt-4 text-2xl font-semibold">
-               Drag &amp; Drop or <span className="text-accent underline" onClick={open}>Click to Upload</span>
+               Drag &amp; Drop or <button type="button" className="text-accent underline" onClick={open}>Click to Upload</button>
             </h2>
             <p className="mt-2 text-muted-foreground">
               Select multiple PDF files to merge their pages
