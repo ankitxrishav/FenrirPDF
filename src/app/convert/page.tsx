@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { saveAs } from "file-saver";
 
@@ -20,6 +20,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { convertToPdf, type ConvertToPdfInput } from "@/ai/flows/convertToPdf";
 
 interface FileWithPreview extends File {
   preview: string;
@@ -37,6 +38,16 @@ const acceptedFileTypes = {
   'image/png': ['.png'],
 };
 
+// Helper function to read a file as a Data URI
+const readFileAsDataURI = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
 export default function ConvertPage() {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [isConverting, setIsConverting] = useState(false);
@@ -47,7 +58,7 @@ export default function ConvertPage() {
        setFiles(prevFiles => [
         ...prevFiles,
         ...acceptedFiles.map(file => Object.assign(file, {
-          preview: URL.createObjectURL(file)
+          preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : ''
         }))
       ]);
     },
@@ -83,25 +94,35 @@ export default function ConvertPage() {
     }
     
     setIsConverting(true);
-    toast({ title: "Starting Conversion", description: "This is a placeholder. The conversion logic is not yet implemented." });
+    toast({ title: "Starting Conversion", description: "Your files are being uploaded and converted..." });
     
-    // Simulate a network request
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Placeholder for actual conversion logic
-    console.log("Simulating conversion for:", files.map(f => f.name));
-    
-    // In a real implementation, you would receive a PDF blob here
-    // For now, let's create a dummy PDF to demonstrate download
-    const { PDFDocument } = await import('pdf-lib');
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage();
-    page.drawText(`Converted files:\n${files.map(f => f.name).join('\n')}`);
-    const pdfBytes = await pdfDoc.save();
-    const blob = new Blob([pdfBytes], { type: "application/pdf" });
-    saveAs(blob, "converted.pdf");
-    
-    setIsConverting(false);
+    try {
+      const fileInputs = await Promise.all(
+        files.map(async (file) => ({
+          filename: file.name,
+          dataUri: await readFileAsDataURI(file),
+        }))
+      );
+
+      const input: ConvertToPdfInput = { files: fileInputs };
+      const result = await convertToPdf(input);
+
+      // Convert data URI back to a blob for download
+      const res = await fetch(result.pdfDataUri);
+      const blob = await res.blob();
+      saveAs(blob, "converted.pdf");
+      
+      toast({ title: "Conversion Successful", description: "Your PDF has been downloaded." });
+    } catch (error) {
+      console.error("Conversion failed:", error);
+      toast({
+        title: "Conversion Failed",
+        description: "An error occurred while converting your files. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsConverting(false);
+    }
   };
   
   const handleFileUploadClick = () => {
