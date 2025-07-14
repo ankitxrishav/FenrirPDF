@@ -65,7 +65,7 @@ const FileThumbnail: React.FC<{ pdfFile: PdfFile; onDelete: (id: string) => void
 };
 
 const PdfPreview: React.FC<{
-  file: File | null;
+  fileUrl: string | null;
   watermarkType: "text" | "image";
   text: string;
   imagePreview: string | null;
@@ -73,8 +73,8 @@ const PdfPreview: React.FC<{
   imageScale: number;
   opacity: number;
   rotation: number;
-}> = ({ file, watermarkType, text, imagePreview, fontSize, imageScale, opacity, rotation }) => {
-  if (!file) {
+}> = ({ fileUrl, watermarkType, text, imagePreview, fontSize, imageScale, opacity, rotation }) => {
+  if (!fileUrl) {
     return (
       <div className="aspect-[3/4] w-full bg-muted rounded-lg flex flex-col items-center justify-center text-center p-4">
          <ImageIcon className="w-16 h-16 text-muted-foreground" />
@@ -84,7 +84,7 @@ const PdfPreview: React.FC<{
   }
   return (
     <div className="relative aspect-[3/4] w-full bg-muted rounded-lg overflow-hidden border">
-       <img src={URL.createObjectURL(file)} alt="PDF Preview" className="w-full h-full object-contain" />
+       <img src={fileUrl} alt="PDF Preview" className="w-full h-full object-contain" />
        <div 
          className="absolute top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none"
          style={{
@@ -298,11 +298,8 @@ export default function WatermarkPage() {
     toast({ title: "Cleared", description: "All files and settings have been cleared." });
   }
 
-  const previewFile = useMemo(() => {
-    if (files.length === 0) return null;
-    const firstPdf = files[0];
-    const blob = new Blob([firstPdf.previewUrl], { type: 'image/png' });
-    return new File([blob], 'preview.png', { type: 'image/png' });
+  const previewUrl = useMemo(() => {
+    return files.length > 0 ? files[0].previewUrl : null;
   }, [files]);
 
   return (
@@ -398,7 +395,7 @@ export default function WatermarkPage() {
                     </div>
                 </div>
                  <PdfPreview
-                    file={files.length > 0 ? files[0].previewUrl as any : null}
+                    fileUrl={previewUrl}
                     watermarkType={watermarkType}
                     text={text}
                     imagePreview={imagePreview}
