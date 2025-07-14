@@ -153,9 +153,8 @@ export default function WatermarkPage() {
         };
 
         try {
-            // Use a web worker for thumbnail generation if it becomes slow
             const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer.slice(0) }).promise;
             const page = await pdf.getPage(1);
             const viewport = page.getViewport({ scale: 0.5 });
             const canvas = document.createElement("canvas");
@@ -166,12 +165,11 @@ export default function WatermarkPage() {
                 await page.render({ canvasContext: context, viewport }).promise;
             }
 
-            // Create a preview for the live view
             const previewBlob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
 
             newPdfFiles.push({
                 id: `${file.name}-${file.lastModified}`,
-                file: new File([arrayBuffer], file.name, { type: 'application/pdf' }),
+                file: file, // Use the original file object
                 previewUrl: previewBlob ? URL.createObjectURL(previewBlob) : '',
             });
 
@@ -445,3 +443,5 @@ export default function WatermarkPage() {
     </div>
   );
 }
+
+    
