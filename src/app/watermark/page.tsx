@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { PDFDocument, rgb, degrees, StandardFonts } from "pdf-lib";
 import { saveAs } from "file-saver";
 import { useDropzone } from 'react-dropzone';
@@ -64,6 +64,61 @@ const FileThumbnail: React.FC<{ pdfFile: PdfFile; onDelete: (id: string) => void
   );
 };
 
+const PdfPreview: React.FC<{
+  file: File | null;
+  watermarkType: "text" | "image";
+  text: string;
+  imagePreview: string | null;
+  fontSize: number;
+  imageScale: number;
+  opacity: number;
+  rotation: number;
+}> = ({ file, watermarkType, text, imagePreview, fontSize, imageScale, opacity, rotation }) => {
+  if (!file) {
+    return (
+      <div className="aspect-[3/4] w-full bg-muted rounded-lg flex flex-col items-center justify-center text-center p-4">
+         <ImageIcon className="w-16 h-16 text-muted-foreground" />
+         <p className="mt-4 text-sm text-muted-foreground">Upload a PDF to see a live preview</p>
+      </div>
+    );
+  }
+  return (
+    <div className="relative aspect-[3/4] w-full bg-muted rounded-lg overflow-hidden border">
+       <img src={URL.createObjectURL(file)} alt="PDF Preview" className="w-full h-full object-contain" />
+       <div 
+         className="absolute top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none"
+         style={{
+           transform: `rotate(${rotation}deg)`,
+           opacity: opacity
+         }}
+       >
+         {watermarkType === 'text' ? (
+           <span
+             className="text-black font-bold text-center break-words"
+             style={{
+               fontSize: `${fontSize}px`,
+               color: 'rgba(0,0,0,1)'
+             }}
+           >
+             {text}
+           </span>
+         ) : imagePreview ? (
+            <img 
+              src={imagePreview} 
+              alt="Watermark" 
+              className="max-w-full max-h-full"
+              style={{
+                width: `${imageScale * 100}%`,
+                height: 'auto',
+              }}
+            />
+         ) : null}
+       </div>
+    </div>
+  )
+}
+
+
 export default function WatermarkPage() {
   const [files, setFiles] = useState<PdfFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -78,6 +133,7 @@ export default function WatermarkPage() {
   const [rotation, setRotation] = useState(-45);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageScale, setImageScale] = useState(0.5);
 
   const { toast } = useToast();
 
@@ -97,6 +153,7 @@ export default function WatermarkPage() {
         };
 
         try {
+            // Use a web worker for thumbnail generation if it becomes slow
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
             const page = await pdf.getPage(1);
@@ -109,11 +166,15 @@ export default function WatermarkPage() {
                 await page.render({ canvasContext: context, viewport }).promise;
             }
 
+            // Create a preview for the live view
+            const previewBlob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+
             newPdfFiles.push({
                 id: `${file.name}-${file.lastModified}`,
-                file,
-                previewUrl: canvas.toDataURL(),
+                file: new File([arrayBuffer], file.name, { type: 'application/pdf' }),
+                previewUrl: previewBlob ? URL.createObjectURL(previewBlob) : '',
             });
+
         } catch (error) {
             console.error("Error processing file preview:", error);
             toast({ title: "Preview Error", description: `Could not create a preview for ${file.name}.`, variant: "destructive" });
@@ -166,32 +227,23 @@ export default function WatermarkPage() {
     
     setIsProcessing(true);
     try {
-      let watermarkAsset: any = null;
-      let watermarkAssetType: 'text' | 'image' | null = null;
-      
+      let watermarkAssetBytes: ArrayBuffer | null = null;
       if (watermarkType === 'image' && imageFile) {
-        const imageBytes = await imageFile.arrayBuffer();
-        if (imageFile.type === 'image/png') {
-          watermarkAsset = imageBytes;
-          watermarkAssetType = 'image';
-        } else if (imageFile.type === 'image/jpeg') {
-          watermarkAsset = imageBytes;
-          watermarkAssetType = 'image';
-        }
+        watermarkAssetBytes = await imageFile.arrayBuffer();
       }
 
       for (const pdfFile of files) {
           const existingPdfBytes = await pdfFile.file.arrayBuffer();
           const pdfDoc = await PDFDocument.load(existingPdfBytes);
           
-          let embeddedAsset;
-          if (watermarkAssetType === 'image') {
-              if (imageFile?.type === 'image/png') {
-                embeddedAsset = await pdfDoc.embedPng(watermarkAsset);
-              } else if (imageFile?.type === 'image/jpeg') {
-                embeddedAsset = await pdfDoc.embedJpg(watermarkAsset);
+          let embeddedAsset: any;
+          if (watermarkType === 'image' && watermarkAssetBytes && imageFile) {
+              if (imageFile.type === 'image/png') {
+                embeddedAsset = await pdfDoc.embedPng(watermarkAssetBytes);
+              } else if (imageFile.type === 'image/jpeg') {
+                embeddedAsset = await pdfDoc.embedJpg(watermarkAssetBytes);
               }
-          } else { // text
+          } else {
               embeddedAsset = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
           }
 
@@ -199,9 +251,10 @@ export default function WatermarkPage() {
           for (const page of pages) {
             const { width, height } = page.getSize();
             
-            if (watermarkType === 'text') {
+            if (watermarkType === 'text' && embeddedAsset) {
+              const textWidth = embeddedAsset.widthOfTextAtSize(text, fontSize);
               page.drawText(text, {
-                x: width / 2 - (embeddedAsset.widthOfTextAtSize(text, fontSize) / 2),
+                x: width / 2 - textWidth / 2,
                 y: height / 2 - fontSize / 2,
                 size: fontSize,
                 font: embeddedAsset,
@@ -209,8 +262,8 @@ export default function WatermarkPage() {
                 opacity: opacity,
                 rotate: degrees(rotation),
               });
-            } else if (embeddedAsset) {
-              const scaled = embeddedAsset.scale(0.5);
+            } else if (watermarkType === 'image' && embeddedAsset) {
+              const scaled = embeddedAsset.scale(imageScale);
                page.drawImage(embeddedAsset, {
                 x: width / 2 - scaled.width / 2,
                 y: height / 2 - scaled.height / 2,
@@ -245,6 +298,13 @@ export default function WatermarkPage() {
     toast({ title: "Cleared", description: "All files and settings have been cleared." });
   }
 
+  const previewFile = useMemo(() => {
+    if (files.length === 0) return null;
+    const firstPdf = files[0];
+    const blob = new Blob([firstPdf.previewUrl], { type: 'image/png' });
+    return new File([blob], 'preview.png', { type: 'image/png' });
+  }, [files]);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -252,7 +312,7 @@ export default function WatermarkPage() {
         <div className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold text-primary">Add Watermark to PDF</h1>
             <p className="mt-4 text-lg text-foreground/80 max-w-3xl mx-auto">
-              Stamp a text or image watermark onto your PDF files. Customize the appearance and placement with ease.
+              Stamp a text or image watermark onto your PDF files. Customize the appearance and placement with ease using a live preview.
             </p>
         </div>
         {files.length === 0 && !isLoading ? (
@@ -272,9 +332,9 @@ export default function WatermarkPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="md:col-span-1">
-                <Card>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1 space-y-6">
+                 <Card>
                     <CardHeader>
                         <CardTitle>Watermark Options</CardTitle>
                     </CardHeader>
@@ -290,8 +350,8 @@ export default function WatermarkPage() {
                                 <Input id="watermark-text" value={text} onChange={e => setText(e.target.value)} />
                               </div>
                               <div className="space-y-2">
-                                <Label htmlFor="font-size">Font Size</Label>
-                                <Input id="font-size" type="number" value={fontSize} onChange={e => setFontSize(Number(e.target.value))} />
+                                <Label htmlFor="font-size">Font Size ({fontSize}px)</Label>
+                                <Slider id="font-size" value={[fontSize]} onValueChange={([v]) => setFontSize(v)} min={8} max={144} step={1} />
                               </div>
                           </TabsContent>
                           <TabsContent value="image" className="space-y-4 pt-4">
@@ -300,9 +360,15 @@ export default function WatermarkPage() {
                                 <Input id="image-upload" type="file" accept="image/png, image/jpeg" onChange={handleImageFileChange} />
                               </div>
                               {imagePreview && (
-                                <div className="border rounded-md p-2">
-                                  <img src={imagePreview} alt="Watermark preview" className="max-w-full h-auto" />
-                                </div>
+                                <>
+                                  <div className="border rounded-md p-2 max-h-32 overflow-hidden">
+                                    <img src={imagePreview} alt="Watermark preview" className="w-full h-auto object-contain" />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="image-scale">Image Scale ({Math.round(imageScale * 100)}%)</Label>
+                                    <Slider id="image-scale" value={[imageScale]} onValueChange={([v]) => setImageScale(v)} min={0.1} max={2} step={0.05} />
+                                  </div>
+                                </>
                               )}
                           </TabsContent>
                         </Tabs>
@@ -320,14 +386,10 @@ export default function WatermarkPage() {
                     </CardContent>
                 </Card>
             </div>
-            <div className="md:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6">
                  <div className="flex flex-wrap gap-4 items-center justify-between p-4 rounded-lg bg-card border">
-                    <h2 className="text-xl font-semibold">Your Files ({files.length})</h2>
+                    <h2 className="text-xl font-semibold">Live Preview</h2>
                     <div className="flex flex-wrap items-center gap-4">
-                        <Button onClick={open} variant="outline" disabled={isLoading}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Upload More
-                        </Button>
                         <Button onClick={handleDownload} disabled={isProcessing || isLoading || files.length === 0}>
                             {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
                             Watermark & Download All
@@ -335,29 +397,49 @@ export default function WatermarkPage() {
                         <Button variant="ghost" size="icon" onClick={clearAll}><X className="h-4 w-4"/></Button>
                     </div>
                 </div>
-                 {isLoading && files.length === 0 && (
-                    <div className="flex flex-col items-center justify-center">
-                        <div className="w-full max-w-md space-y-2">
-                            <Progress value={progress} className="w-full" />
-                            <p className="text-sm text-center text-muted-foreground">{progress}%</p>
-                        </div>
-                    </div>
-                )}
+                 <PdfPreview
+                    file={files.length > 0 ? files[0].previewUrl as any : null}
+                    watermarkType={watermarkType}
+                    text={text}
+                    imagePreview={imagePreview}
+                    fontSize={fontSize}
+                    imageScale={imageScale}
+                    opacity={opacity}
+                    rotation={rotation}
+                 />
+
                 <div 
                   {...getRootProps()}
-                  className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 p-4 border border-dashed rounded-lg min-h-[200px] transition-colors ${isDragActive ? 'border-primary bg-primary/10' : 'border-transparent'}`}
+                  className={`p-4 border border-dashed rounded-lg min-h-[150px] transition-colors ${isDragActive ? 'border-primary bg-primary/10' : 'border-transparent'}`}
                 >
                     <input {...getInputProps()}/>
-                    {files.map((pdfFile) => (
-                        <FileThumbnail key={pdfFile.id} pdfFile={pdfFile} onDelete={handleDelete} />
-                    ))}
-                     {isLoading && (
-                      <div className="flex flex-col items-center justify-center aspect-[3/4] p-4 border border-dashed rounded-lg">
-                        <Loader2 className="w-8 h-8 animate-spin text-accent" />
-                        <p className="mt-2 text-sm text-center text-muted-foreground">Loading...</p>
-                        <Progress value={progress} className="w-full mt-2" />
-                      </div>
+                     <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold">Your Files ({files.length})</h2>
+                        <Button onClick={open} variant="outline" disabled={isLoading}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Upload More
+                        </Button>
+                     </div>
+                     {isLoading && files.length === 0 && (
+                        <div className="flex flex-col items-center justify-center">
+                            <div className="w-full max-w-md space-y-2">
+                                <Progress value={progress} className="w-full" />
+                                <p className="text-sm text-center text-muted-foreground">{progress}%</p>
+                            </div>
+                        </div>
                     )}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        {files.map((pdfFile) => (
+                            <FileThumbnail key={pdfFile.id} pdfFile={pdfFile} onDelete={handleDelete} />
+                        ))}
+                        {isLoading && (
+                          <div className="flex flex-col items-center justify-center aspect-[3/4] p-4 border border-dashed rounded-lg">
+                            <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                            <p className="mt-2 text-sm text-center text-muted-foreground">Loading...</p>
+                            <Progress value={progress} className="w-full mt-2" />
+                          </div>
+                        )}
+                    </div>
                 </div>
             </div>
           </div>
