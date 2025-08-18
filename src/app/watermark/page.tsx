@@ -249,11 +249,15 @@ export default function WatermarkPage() {
           for (const page of pages) {
             const { width, height } = page.getSize();
             
+            page.pushOperators(
+                //
+            );
+
             if (watermarkType === 'text' && embeddedAsset) {
               const textWidth = embeddedAsset.widthOfTextAtSize(text, fontSize);
               page.drawText(text, {
                 x: width / 2 - textWidth / 2,
-                y: height / 2 - fontSize / 2,
+                y: height / 2 - (fontSize / 2),
                 size: fontSize,
                 font: embeddedAsset,
                 color: rgb(0, 0, 0),
@@ -410,7 +414,8 @@ export default function WatermarkPage() {
                     <input {...getInputProps()}/>
                      <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-semibold">Your Files ({files.length})</h2>
-                        <Button onClick={open} variant="outline" disabled={isLoading}>
+                         <Button onClick={open} variant="outline" disabled={isLoading}>
+                             <PlusCircle className="mr-2 h-4 w-4" />
                             Upload More
                         </Button>
                      </div>
