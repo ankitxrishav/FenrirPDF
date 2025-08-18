@@ -411,7 +411,6 @@ export default function WatermarkPage() {
                      <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-semibold">Your Files ({files.length})</h2>
                         <Button onClick={open} variant="outline" disabled={isLoading}>
-                            <PlusCircle className="mr-2 h-4 w-4" />
                             Upload More
                         </Button>
                      </div>
@@ -443,5 +442,3 @@ export default function WatermarkPage() {
     </div>
   );
 }
-
-    
