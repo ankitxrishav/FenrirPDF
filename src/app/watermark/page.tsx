@@ -167,7 +167,7 @@ export default function WatermarkPage() {
             
             newPdfFiles.push({
                 id: `${file.name}-${file.lastModified}`,
-                file: file,
+                file: file, // Store the original file
                 previewUrl: canvas.toDataURL(),
             });
 
@@ -253,7 +253,7 @@ export default function WatermarkPage() {
 
               page.drawText(text, {
                 x: width / 2 - textWidth / 2,
-                y: height / 2 - textHeight / 2,
+                y: height / 2 - textHeight / 4, // Adjusted for better vertical centering
                 size: fontSize,
                 font: embeddedAsset,
                 color: rgb(0, 0, 0),
