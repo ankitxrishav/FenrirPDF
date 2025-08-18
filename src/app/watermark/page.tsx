@@ -248,28 +248,43 @@ export default function WatermarkPage() {
             const { width, height } = page.getSize();
             
             if (watermarkType === 'text' && embeddedAsset) {
-              const textWidth = embeddedAsset.widthOfTextAtSize(text, fontSize);
-              const textHeight = embeddedAsset.heightAtSize(fontSize);
+              const font = embeddedAsset;
+              const fontScale = 0.96;
+              const textWidth = font.widthOfTextAtSize(text, fontSize * fontScale);
+              const textHeight = font.heightAtSize(fontSize * fontScale);
 
               page.drawText(text, {
                 x: width / 2 - textWidth / 2,
-                y: height / 2 - textHeight / 4, // Adjusted for better vertical centering
-                size: fontSize,
-                font: embeddedAsset,
+                y: height / 2 - textHeight / 2,
+                size: fontSize * fontScale,
+                font: font,
                 color: rgb(0, 0, 0),
                 opacity: opacity,
                 rotate: degrees(rotation),
               });
             } else if (watermarkType === 'image' && embeddedAsset) {
-              const scaled = embeddedAsset.scale(imageScale);
-               page.drawImage(embeddedAsset, {
-                x: width / 2 - scaled.width / 2,
-                y: height / 2 - scaled.height / 2,
-                width: scaled.width,
-                height: scaled.height,
-                opacity: opacity,
-                rotate: degrees(rotation),
-              });
+                const image = embeddedAsset;
+                const scaled = image.scale(imageScale);
+
+                page.pushOperators(
+                    // Save the current graphics state
+                );
+
+                page.translate(width / 2, height / 2);
+                page.rotate(degrees(rotation));
+                page.translate(-width / 2, -height / 2);
+                
+                page.drawImage(image, {
+                    x: width / 2 - scaled.width / 2,
+                    y: height / 2 - scaled.height / 2,
+                    width: scaled.width,
+                    height: scaled.height,
+                    opacity: opacity,
+                });
+
+                page.popOperators(
+                    // Restore the saved graphics state
+                );
             }
           }
 
