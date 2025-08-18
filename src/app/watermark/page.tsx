@@ -164,13 +164,11 @@ export default function WatermarkPage() {
             if (context) {
                 await page.render({ canvasContext: context, viewport }).promise;
             }
-
-            const previewBlob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
-
+            
             newPdfFiles.push({
                 id: `${file.name}-${file.lastModified}`,
-                file: file, // Use the original file object
-                previewUrl: previewBlob ? URL.createObjectURL(previewBlob) : '',
+                file: file,
+                previewUrl: canvas.toDataURL(),
             });
 
         } catch (error) {
@@ -249,15 +247,12 @@ export default function WatermarkPage() {
           for (const page of pages) {
             const { width, height } = page.getSize();
             
-            page.pushOperators(
-                //
-            );
-
             if (watermarkType === 'text' && embeddedAsset) {
               const textWidth = embeddedAsset.widthOfTextAtSize(text, fontSize);
+              const textHeight = embeddedAsset.heightAtSize(fontSize);
               page.drawText(text, {
                 x: width / 2 - textWidth / 2,
-                y: height / 2 - (fontSize / 2),
+                y: height / 2 - textHeight / 2,
                 size: fontSize,
                 font: embeddedAsset,
                 color: rgb(0, 0, 0),
