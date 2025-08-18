@@ -250,6 +250,7 @@ export default function WatermarkPage() {
             if (watermarkType === 'text' && embeddedAsset) {
               const textWidth = embeddedAsset.widthOfTextAtSize(text, fontSize);
               const textHeight = embeddedAsset.heightAtSize(fontSize);
+
               page.drawText(text, {
                 x: width / 2 - textWidth / 2,
                 y: height / 2 - textHeight / 2,
