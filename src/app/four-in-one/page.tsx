@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { PDFDocument, PageSizes } from "pdf-lib";
+import { PDFDocument, PageSizes, rgb, BlendMode } from "pdf-lib";
 import { saveAs } from "file-saver";
 import { useDropzone } from 'react-dropzone';
 import * as pdfjsLib from "pdfjs-dist";
@@ -21,6 +21,7 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 
 if (typeof window !== "undefined") {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
@@ -39,6 +40,7 @@ export default function FourInOnePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('landscape');
+  const [invertColors, setInvertColors] = useState(false);
 
   const { toast } = useToast();
 
@@ -156,6 +158,21 @@ export default function FourInOnePage() {
           });
         }
         
+        if (invertColors) {
+            const pages = newPdf.getPages();
+            for (const page of pages) {
+                const { width, height } = page.getSize();
+                page.drawRectangle({
+                    x: 0,
+                    y: 0,
+                    width,
+                    height,
+                    color: rgb(1, 1, 1),
+                    blendMode: BlendMode.Difference,
+                });
+            }
+        }
+
         const pdfBytes = await newPdf.save();
         const blob = new Blob([pdfBytes], { type: "application/pdf" });
         const finalFilename = `4-in-1-${pdfFile.file.name}`;
@@ -243,6 +260,10 @@ export default function FourInOnePage() {
                                 </div>
                             </RadioGroup>
                         </div>
+                        <div className="flex items-center space-x-2">
+                            <Checkbox id="invert-colors" checked={invertColors} onCheckedChange={(checked) => setInvertColors(!!checked)} />
+                            <Label htmlFor="invert-colors">Invert Colors</Label>
+                        </div>
                         <p className="text-sm text-foreground/80">
                            This tool will arrange the pages of your document into a 2x2 grid, placing 4 original pages onto each new page.
                         </p>
@@ -266,3 +287,5 @@ export default function FourInOnePage() {
     </div>
   );
 }
+
+    
