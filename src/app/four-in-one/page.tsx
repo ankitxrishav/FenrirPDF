@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { PDFDocument, PageSizes, pdfDocEncoding } from "pdf-lib";
+import { PDFDocument, PageSizes } from "pdf-lib";
 import { saveAs } from "file-saver";
 import { useDropzone } from 'react-dropzone';
 import * as pdfjsLib from "pdfjs-dist";
@@ -19,6 +19,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 if (typeof window !== "undefined") {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
@@ -36,6 +38,7 @@ export default function FourInOnePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
 
   const { toast } = useToast();
 
@@ -103,32 +106,35 @@ export default function FourInOnePage() {
         const pdfDoc = await PDFDocument.load(existingPdfBytes);
         const newPdf = await PDFDocument.create();
         const pageCount = pdfDoc.getPageCount();
-        const margin = 36;
+        const margin = 18; // Reduced margin for more space
+
         const [a4Width, a4Height] = PageSizes.A4;
+        const pageDimensions = orientation === 'portrait' ? [a4Width, a4Height] : [a4Height, a4Width];
 
         for (let i = 0; i < pageCount; i += 4) {
-          const newPage = newPdf.addPage(PageSizes.A4);
+          const newPage = newPdf.addPage(pageDimensions);
+          const [pageWidth, pageHeight] = pageDimensions;
           
           const pagesToDraw = pdfDoc.getPages().slice(i, i + 4);
           const embeddedPages = await newPdf.embedPages(pagesToDraw);
 
-          const availableWidth = a4Width - margin * 2;
-          const availableHeight = a4Height - margin * 2;
+          const availableWidth = pageWidth - margin * 2;
+          const availableHeight = pageHeight - margin * 2;
           const cellWidth = availableWidth / 2;
           const cellHeight = availableHeight / 2;
 
           embeddedPages.forEach((embeddedPage, index) => {
-            const scale = Math.min(cellWidth / embeddedPage.width, cellHeight / embeddedPage.height) * 0.95; // 95% scale to add padding
+            const scale = Math.min(cellWidth / embeddedPage.width, cellHeight / embeddedPage.height);
             const scaledWidth = embeddedPage.width * scale;
             const scaledHeight = embeddedPage.height * scale;
             
             let x, y;
             if (index === 0) { // Top-left
               x = margin;
-              y = a4Height - margin - cellHeight;
+              y = pageHeight - margin - cellHeight;
             } else if (index === 1) { // Top-right
               x = margin + cellWidth;
-              y = a4Height - margin - cellHeight;
+              y = pageHeight - margin - cellHeight;
             } else if (index === 2) { // Bottom-left
               x = margin;
               y = margin;
@@ -223,6 +229,19 @@ export default function FourInOnePage() {
                                 <h2 className="font-semibold text-lg">{pdfFile.file.name}</h2>
                                 <p className="text-sm text-muted-foreground">{pdfFile.pageCount} pages</p>
                             </div>
+                        </div>
+                         <div className="space-y-3">
+                            <Label>Page Orientation</Label>
+                            <RadioGroup value={orientation} onValueChange={(v) => setOrientation(v as any)} className="flex items-center gap-4">
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="portrait" id="portrait" />
+                                    <Label htmlFor="portrait">Portrait</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="landscape" id="landscape" />
+                                    <Label htmlFor="landscape">Landscape</Label>
+                                </div>
+                            </RadioGroup>
                         </div>
                         <p className="text-sm text-foreground/80">
                            This tool will arrange the pages of your document into a 2x2 grid, placing 4 original pages onto each new page.
