@@ -6,6 +6,8 @@ import {
   Scissors,
   Baseline,
   Droplet,
+  Grid,
+  InvertColors,
 } from 'lucide-react';
 
 const siteConfig = {
@@ -69,6 +71,22 @@ const JsonLd = {
         "@type": "EntryPoint",
         "urlTemplate": `${siteConfig.url}/watermark`
       }
+    },
+    {
+      "@type": "Action",
+      "name": "Invert PDF Colors",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${siteConfig.url}/invert`
+      }
+    },
+    {
+      "@type": "Action",
+      "name": "Combine 4 pages into 1",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${siteConfig.url}/four-in-one`
+      }
     }
   ],
   "publisher": {
@@ -103,7 +121,7 @@ export default function Home() {
         />
       <Header />
       <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-4xl mx-auto">
+        <div className="w-full max-w-5xl mx-auto">
             <div className="mb-8 text-center">
               <h1 className="text-3xl md:text-4xl font-bold text-primary leading-tight tracking-tighter">
                 FenrirPDF: Your Free &amp; Private PDF Toolkit
@@ -115,7 +133,7 @@ export default function Home() {
             
             <div className="p-2 rounded-3xl animated-border">
               <div className="bg-card/60 backdrop-blur-xl rounded-2xl p-4">
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                      <FeatureCard 
                         href="/merge" 
                         title="Merge PDFs" 
@@ -139,6 +157,18 @@ export default function Home() {
                         title="Add Watermark" 
                         description="Stamp text or an image over your PDF."
                         icon={<Droplet size={24} />}
+                      />
+                      <FeatureCard 
+                        href="/invert" 
+                        title="Invert Colors" 
+                        description="Invert the colors of your PDF."
+                        icon={<InvertColors size={24} />}
+                      />
+                       <FeatureCard 
+                        href="/four-in-one" 
+                        title="4-in-1 Pages" 
+                        description="Combine 4 pages into a single page."
+                        icon={<Grid size={24} />}
                       />
                 </div>
               </div>
