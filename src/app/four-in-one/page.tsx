@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, a part of React, a part of React, { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { PDFDocument, PageSizes, rgb, BlendMode } from "pdf-lib";
 import { saveAs } from "file-saver";
 import { useDropzone } from 'react-dropzone';
