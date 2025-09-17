@@ -1,10 +1,10 @@
 {
-  "name": "fenrirPDF",
+  "name": "fenrirPDF: Free Online PDF Tools",
   "short_name": "fenrirPDF",
-  "description": "Merge, extract, and reorder PDF files with ease. Your free, fast, and private online PDF tool.",
+  "description": "Merge, extract, reorder, watermark, and combine PDF files with ease. Your free, fast, and private online PDF tool.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F2F4F8",
+  "background_color": "#ffffff",
   "theme_color": "#293B5F",
   "icons": [
     {

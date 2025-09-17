@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, a part of React, a part of React, { useState, useCallback } from "react";
 import { PDFDocument, PageSizes, rgb, BlendMode } from "pdf-lib";
 import { saveAs } from "file-saver";
 import { useDropzone } from 'react-dropzone';
@@ -22,6 +22,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+
 
 if (typeof window !== "undefined") {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
@@ -198,7 +199,7 @@ export default function FourInOnePage() {
       <Header />
       <main className="flex-1 container mx-auto p-4 md:p-8">
         <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-primary">Combine 4 Pages into 1</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-primary">Combine 4 PDF Pages into 1</h1>
             <p className="mt-4 text-lg text-foreground/80 max-w-3xl mx-auto">
               Arrange four pages of your PDF onto a single page in a 2x2 grid. Perfect for printing handouts or archiving documents.
             </p>
@@ -287,5 +288,3 @@ export default function FourInOnePage() {
     </div>
   );
 }
-
-    

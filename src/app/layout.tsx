@@ -8,14 +8,14 @@ const siteConfig = {
   name: 'fenrirPDF',
   url: 'https://fenrirpdf.netlify.app',
   ogImage: 'https://fenrirpdf.netlify.app/og-image.png',
-  description: 'Merge, extract, and reorder PDF files with ease. Your free, fast, and private online PDF tool for all your document needs.',
+  description: 'Merge, extract, reorder, watermark, and combine PDF files with ease. Your free, fast, and private online PDF tool for all your document needs.',
   author: 'Fenrir',
 }
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name}: Free & Fast Online PDF Tools - Merge & Extract`,
+    default: `${siteConfig.name}: Free & Fast Online PDF Tools - Merge, Extract, Watermark`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
@@ -23,7 +23,12 @@ export const metadata: Metadata = {
     'PDF tools', 
     'Merge PDF', 
     'Extract PDF', 
-    'Reorder PDF', 
+    'Reorder PDF',
+    'Watermark PDF',
+    'Number PDF',
+    'Invert PDF colors',
+    '4 in 1 page pdf',
+    'Combine PDF pages',
     'Online PDF Editor', 
     'Free PDF tool',
     'PDF merger',
