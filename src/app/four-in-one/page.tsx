@@ -38,7 +38,7 @@ export default function FourInOnePage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('landscape');
 
   const { toast } = useToast();
 
