@@ -19,7 +19,7 @@
 
 ---
 
-**fenrirPDF** is a lightweight, fast, and privacy-focused web application that provides essential PDF utilities right in your browser. Merge multiple PDFs into a single file or extract and reorder pages from an existing document with a simple drag-and-drop interface. No sign-ups, no wait times, and absolutely no file uploads to any server.
+**fenrirPDF** is a lightweight, fast, and privacy-focused web application that provides essential PDF utilities right in your browser. Merge, extract, reorder, and now even invert colors or combine pages—all with a simple drag-and-drop interface. No sign-ups, no wait times, and absolutely no file uploads to any server.
 
 ## ✨ Key Features
 
@@ -27,6 +27,8 @@
 -   **✂️ Extract & Reorder Pages**: Easily select, reorder, and delete pages from any PDF.
 -   **#️⃣ Add Page Numbers**: Insert page numbers with customizable positioning and formatting.
 -   **🖋️ Add Watermark**: Stamp text or an image over your PDF pages to protect or brand your documents.
+-   **🎨 Invert PDF Colors**: Invert the colors of your entire PDF. Perfect for night mode or saving ink.
+-   **🔲 Combine 4 Pages into 1**: Arrange four pages of your PDF onto a single page in a 2x2 grid.
 -   **🔒 100% Private**: All processing is done entirely on your device in the browser. Your files never leave your computer.
 -   **💨 Blazing Fast**: Built with modern web technologies for a smooth and responsive experience, even with large files.
 -   **👆 Drag & Drop Interface**: An intuitive user interface for managing your documents and pages.
