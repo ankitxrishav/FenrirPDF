@@ -13,22 +13,22 @@ import {
 const siteConfig = {
   name: 'fenrirPDF',
   url: 'https://fenrirpdf.netlify.app',
-  description: 'Your everyday PDF tool – lightweight, fast, no signup. Merge and extract pages. All done locally in your browser for ultimate privacy.',
+  description: 'Your everyday PDF tool – lightweight, fast, no signup. Merge, extract, reorder, watermark, invert colors, and combine pages. All done locally in your browser for ultimate privacy.',
 };
 
 export const metadata: Metadata = {
-  title: 'Free Online PDF Tools - Merge, Extract, Watermark & Number Pages | fenrirPDF',
+  title: 'Free Online PDF Tools - Merge, Extract, Watermark & More | fenrirPDF',
   description: siteConfig.description,
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Free Online PDF Tools - Merge & Extract | fenrirPDF',
+    title: 'Free Online PDF Tools - Merge, Extract & More | fenrirPDF',
     description: siteConfig.description,
     url: '/',
   },
   twitter: {
-     title: 'Free Online PDF Tools - Merge & Extract | fenrirPDF',
+     title: 'Free Online PDF Tools - Merge, Extract & More | fenrirPDF',
     description: siteConfig.description,
   }
 };
@@ -40,6 +40,22 @@ const JsonLd = {
   "name": "fenrirPDF",
   "description": siteConfig.description,
   "potentialAction": [
+     {
+      "@type": "Action",
+      "name": "Combine 4 pages into 1",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${siteConfig.url}/four-in-one`
+      }
+    },
+    {
+      "@type": "Action",
+      "name": "Invert PDF Colors",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${siteConfig.url}/invert`
+      }
+    },
     {
       "@type": "Action",
       "name": "Merge PDF Files",
@@ -70,22 +86,6 @@ const JsonLd = {
       "target": {
         "@type": "EntryPoint",
         "urlTemplate": `${siteConfig.url}/watermark`
-      }
-    },
-    {
-      "@type": "Action",
-      "name": "Invert PDF Colors",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": `${siteConfig.url}/invert`
-      }
-    },
-    {
-      "@type": "Action",
-      "name": "Combine 4 pages into 1",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": `${siteConfig.url}/four-in-one`
       }
     }
   ],
@@ -135,6 +135,18 @@ export default function Home() {
               <div className="bg-card/60 backdrop-blur-xl rounded-2xl p-4">
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                      <FeatureCard 
+                        href="/four-in-one" 
+                        title="4-in-1 Pages" 
+                        description="Combine 4 pages into a single page."
+                        icon={<Grid size={24} />}
+                      />
+                      <FeatureCard 
+                        href="/invert" 
+                        title="Invert Colors" 
+                        description="Invert the colors of your PDF."
+                        icon={<Contrast size={24} />}
+                      />
+                      <FeatureCard 
                         href="/merge" 
                         title="Merge PDFs" 
                         description="Combine multiple PDFs into one."
@@ -157,18 +169,6 @@ export default function Home() {
                         title="Add Watermark" 
                         description="Stamp text or an image over your PDF."
                         icon={<Droplet size={24} />}
-                      />
-                      <FeatureCard 
-                        href="/invert" 
-                        title="Invert Colors" 
-                        description="Invert the colors of your PDF."
-                        icon={<Contrast size={24} />}
-                      />
-                       <FeatureCard 
-                        href="/four-in-one" 
-                        title="4-in-1 Pages" 
-                        description="Combine 4 pages into a single page."
-                        icon={<Grid size={24} />}
                       />
                 </div>
               </div>

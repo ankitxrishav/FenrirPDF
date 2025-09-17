@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, a part of React, { useState, useCallback } from "react";
 import { PDFDocument, rgb, BlendMode } from "pdf-lib";
 import { saveAs } from "file-saver";
 import { useDropzone } from 'react-dropzone';
@@ -19,6 +19,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
+
 
 if (typeof window !== "undefined") {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
