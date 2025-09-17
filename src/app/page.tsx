@@ -7,7 +7,7 @@ import {
   Baseline,
   Droplet,
   Grid,
-  InvertColors,
+  Contrast,
 } from 'lucide-react';
 
 const siteConfig = {
@@ -162,7 +162,7 @@ export default function Home() {
                         href="/invert" 
                         title="Invert Colors" 
                         description="Invert the colors of your PDF."
-                        icon={<InvertColors size={24} />}
+                        icon={<Contrast size={24} />}
                       />
                        <FeatureCard 
                         href="/four-in-one" 
