@@ -111,6 +111,7 @@ export default function ImageToPdfPage() {
   const [filename, setFilename] = useState("converted.pdf");
   const [progress, setProgress] = useState(0);
   const [layout, setLayout] = useState<"1" | "2" | "4">("1");
+  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
   const [invertColors, setInvertColors] = useState(false);
 
   const { toast } = useToast();
@@ -193,10 +194,11 @@ export default function ImageToPdfPage() {
       const imagesPerPage = parseInt(layout, 10);
       const margin = 36;
       
-      const [pageWidth, pageHeight] = PageSizes.A4;
+      const [a4Width, a4Height] = PageSizes.A4;
+      const [pageWidth, pageHeight] = orientation === 'portrait' ? [a4Width, a4Height] : [a4Height, a4Width];
 
       for (let i = 0; i < images.length; i += imagesPerPage) {
-        const page = newPdf.addPage(PageSizes.A4);
+        const page = newPdf.addPage([pageWidth, pageHeight]);
         const imageChunk = images.slice(i, i + imagesPerPage);
         
         let positions: {x: number, y: number, width: number, height: number}[] = [];
@@ -320,15 +322,24 @@ export default function ImageToPdfPage() {
         ) : (
           <div className="space-y-6">
             <div className="flex flex-wrap gap-4 items-center justify-between p-4 rounded-lg bg-card border">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center flex-wrap gap-4">
                   <h2 className="text-xl font-semibold">Your Images ({images.length})</h2>
-                   <div className="w-64">
+                   <div className="w-48">
                     <Select value={layout} onValueChange={(v) => setLayout(v as any)}>
                         <SelectTrigger><SelectValue placeholder="Select layout" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="1">1 Image per page</SelectItem>
                             <SelectItem value="2">2 Images per page</SelectItem>
                             <SelectItem value="4">4 Images per page</SelectItem>
+                        </SelectContent>
+                    </Select>
+                   </div>
+                   <div className="w-48">
+                    <Select value={orientation} onValueChange={(v) => setOrientation(v as any)}>
+                        <SelectTrigger><SelectValue placeholder="Select orientation" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="portrait">Portrait</SelectItem>
+                            <SelectItem value="landscape">Landscape</SelectItem>
                         </SelectContent>
                     </Select>
                    </div>
