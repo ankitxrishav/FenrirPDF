@@ -8,6 +8,7 @@ import {
   Droplet,
   Grid,
   Contrast,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 const siteConfig = {
@@ -54,6 +55,14 @@ const JsonLd = {
       "target": {
         "@type": "EntryPoint",
         "urlTemplate": `${siteConfig.url}/invert`
+      }
+    },
+    {
+      "@type": "Action",
+      "name": "Convert Image to PDF",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${siteConfig.url}/image-to-pdf`
       }
     },
     {
@@ -145,6 +154,12 @@ export default function Home() {
                         title="Invert Colors" 
                         description="Invert the colors of your PDF."
                         icon={<Contrast size={24} />}
+                      />
+                      <FeatureCard
+                        href="/image-to-pdf"
+                        title="Image to PDF"
+                        description="Convert images into a single PDF."
+                        icon={<ImageIcon size={24} />}
                       />
                       <FeatureCard 
                         href="/merge" 
