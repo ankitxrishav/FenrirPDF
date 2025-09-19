@@ -107,14 +107,14 @@
     background-origin: border-box;
     background-clip: padding-box, border-box;
     background-image:
-      linear-gradient(hsl(var(--card)), hsl(var(--card))),
+      linear-gradient(hsl(var(--background)), hsl(var(--background))),
       var(--border-color-light);
     animation: animated-border 5s linear infinite;
   }
 
   .dark .animated-border {
      background-image:
-      linear-gradient(hsl(var(--card)), hsl(var(--card))),
+      linear-gradient(hsl(var(--background)), hsl(var(--background))),
       var(--border-color-dark);
   }
 }
