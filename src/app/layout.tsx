@@ -111,6 +111,8 @@ export default function RootLayout({
           rel="stylesheet"
         />
         <meta name="theme-color" content="#293B5F" />
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png"></link>
       </head>
       <body className="font-body antialiased bg-background">
         <ThemeProvider
