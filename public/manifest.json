@@ -1,19 +1,30 @@
 {
-  "name": "fenrirPDF: Free Online PDF Tools",
-  "short_name": "fenrirPDF",
-  "description": "Merge, extract, reorder, watermark, and combine PDF files with ease. Your free, fast, and private online PDF tool.",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
   "theme_color": "#293B5F",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "name": "fenrirPDF",
+  "short_name": "fenrirPDF",
+  "description": "Free & Private Online PDF Tools",
   "icons": [
     {
-      "src": "/android-chrome-192x192.png",
+      "src": "/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/android-chrome-512x512.png",
+      "src": "/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
