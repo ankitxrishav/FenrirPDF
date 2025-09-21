@@ -265,11 +265,8 @@ export default function WatermarkPage() {
             } else if (watermarkType === 'image' && embeddedAsset) {
                 const image = embeddedAsset;
                 const scaled = image.scale(imageScale);
-
-                page.pushOperators(
-                    // Save the current graphics state
-                );
-
+                
+                page.pushOperators();
                 page.translate(width / 2, height / 2);
                 page.rotate(degrees(rotation));
                 page.translate(-width / 2, -height / 2);
@@ -281,10 +278,7 @@ export default function WatermarkPage() {
                     height: scaled.height,
                     opacity: opacity,
                 });
-
-                page.popOperators(
-                    // Restore the saved graphics state
-                );
+                page.popOperators();
             }
           }
 
