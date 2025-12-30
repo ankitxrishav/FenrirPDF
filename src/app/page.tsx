@@ -9,6 +9,7 @@ import {
   Grid,
   Contrast,
   Image as ImageIcon,
+  RefreshCcw,
 } from 'lucide-react';
 
 const siteConfig = {
@@ -51,7 +52,7 @@ const JsonLd = {
     },
     {
       "@type": "Action",
-      "name": "Normalize PDF Backgrounds",
+      "name": "Invert PDF Colors",
       "target": {
         "@type": "EntryPoint",
         "urlTemplate": `${siteConfig.url}/invert`
@@ -151,9 +152,9 @@ export default function Home() {
                       />
                       <FeatureCard 
                         href="/invert" 
-                        title="Normalize Backgrounds" 
-                        description="Fix dark pages to have a white background."
-                        icon={<Contrast size={24} />}
+                        title="Invert PDF Colors" 
+                        description="Selectively invert the colors of specific pages."
+                        icon={<RefreshCcw size={24} />}
                       />
                       <FeatureCard
                         href="/image-to-pdf"
