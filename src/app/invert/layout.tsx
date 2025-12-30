@@ -1,19 +1,19 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Invert PDF Colors | Free Online Dark Mode Tool',
-  description: 'Easily invert the colors of your PDF document. Ideal for night mode reading, dark mode, or printing with less ink. 100% free and private.',
+  title: 'Normalize PDF Backgrounds | Free Online Dark Mode Fixer',
+  description: 'Automatically detect and invert dark pages in your PDF to create a consistent white background. Perfect for fixing mixed-light and dark-mode documents. 100% free and private.',
   alternates: {
     canonical: '/invert',
   },
   openGraph: {
-    title: 'Invert PDF Colors | Free Online Dark Mode Tool | fenrirPDF',
-    description: 'Switch your PDF to dark mode instantly. Invert colors for better readability and ink saving.',
+    title: 'Normalize PDF Backgrounds | Free Online Dark Mode Fixer | fenrirPDF',
+    description: 'Automatically fix dark-background pages in your PDF for consistent white backgrounds. Ideal for printing and reading.',
     url: '/invert',
   },
   twitter: {
-    title: 'Invert PDF Colors | Free Online Dark Mode Tool | fenrirPDF',
-    description: 'Switch your PDF to dark mode instantly. Invert colors for better readability and ink saving.',
+    title: 'Normalize PDF Backgrounds | Free Online Dark Mode Fixer | fenrirPDF',
+    description: 'Automatically fix dark-background pages in your PDF for consistent white backgrounds. Ideal for printing and reading.',
   }
 };
 

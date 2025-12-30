@@ -51,7 +51,7 @@ const JsonLd = {
     },
     {
       "@type": "Action",
-      "name": "Invert PDF Colors",
+      "name": "Normalize PDF Backgrounds",
       "target": {
         "@type": "EntryPoint",
         "urlTemplate": `${siteConfig.url}/invert`
@@ -151,8 +151,8 @@ export default function Home() {
                       />
                       <FeatureCard 
                         href="/invert" 
-                        title="Invert Colors" 
-                        description="Invert the colors of your PDF."
+                        title="Normalize Backgrounds" 
+                        description="Fix dark pages to have a white background."
                         icon={<Contrast size={24} />}
                       />
                       <FeatureCard
