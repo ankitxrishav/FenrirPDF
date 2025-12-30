@@ -44,7 +44,7 @@ const JsonLd = {
   "potentialAction": [
      {
       "@type": "Action",
-      "name": "Combine 4 pages into 1",
+      "name": "Combine PDF Pages",
       "target": {
         "@type": "EntryPoint",
         "urlTemplate": `${siteConfig.url}/four-in-one`
@@ -146,8 +146,8 @@ export default function Home() {
                  <div className="flex flex-wrap justify-center gap-6">
                      <FeatureCard 
                         href="/four-in-one" 
-                        title="4-in-1 Pages" 
-                        description="Combine 4 pages into a single page."
+                        title="Combine PDF Pages" 
+                        description="Arrange multiple pages onto a single page."
                         icon={<Grid size={24} />}
                       />
                       <FeatureCard 
