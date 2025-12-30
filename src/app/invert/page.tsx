@@ -115,6 +115,15 @@ export default function InvertPage() {
     });
   }
 
+  const toggleSelectAll = () => {
+    if (pagesToInvert.size === pages.length) {
+      setPagesToInvert(new Set());
+    } else {
+      const allPageNumbers = new Set(pages.map(p => p.pageNumber));
+      setPagesToInvert(allPageNumbers);
+    }
+  };
+
   const handleDownload = async () => {
     if (!pdfFile) {
         toast({ title: "No file to process", description: "Please upload a PDF.", variant: "destructive" });
@@ -210,11 +219,14 @@ export default function InvertPage() {
                     <div>
                         <h2 className="font-semibold text-lg">{pdfFile.name}</h2>
                         <p className="text-sm text-muted-foreground">
-                           {pagesToInvert.size > 0 ? `${pagesToInvert.size} pages marked for inversion.` : `Click on pages to select them for inversion.`}
+                           {pagesToInvert.size > 0 ? `${pagesToInvert.size} of ${pages.length} pages marked for inversion.` : `Click on pages to select them for inversion.`}
                         </p>
                     </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
+                   <Button onClick={toggleSelectAll} variant="secondary">
+                    {pagesToInvert.size === pages.length ? 'Deselect All' : 'Select All'}
+                   </Button>
                    <Button onClick={handleDownload} disabled={isProcessing}>
                         {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
                         Download PDF

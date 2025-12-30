@@ -1,19 +1,19 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Combine 4 PDF Pages into 1 | Free Online Tool',
-  description: 'Easily combine four pages of your PDF onto a single A4 page in a 2x2 grid. Our free online tool is perfect for printing handouts, notes, or archiving documents. No uploads, 100% private.',
+  title: 'Combine PDF Pages into One | 2-in-1, 4-in-1, 8-in-1 Tool',
+  description: 'Easily combine two, four, or eight pages of your PDF onto a single A4 page. Our free online tool is perfect for printing handouts, notes, or archiving documents. No uploads, 100% private.',
   alternates: {
     canonical: '/four-in-one',
   },
   openGraph: {
-    title: 'Combine 4 PDF Pages into 1 | fenrirPDF',
-    description: 'Arrange four PDF pages into a single A4 page in a 2x2 grid layout. Perfect for printing and archiving.',
+    title: 'Combine PDF Pages into One | 2-in-1, 4-in-1, 8-in-1 | fenrirPDF',
+    description: 'Arrange multiple PDF pages into a single page with layouts like 2-in-1, 4-in-1, or 8-in-1. Perfect for printing and archiving.',
     url: '/four-in-one',
   },
   twitter: {
-    title: 'Combine 4 PDF Pages into 1 | fenrirPDF',
-    description: 'Arrange four PDF pages into a single A4 page in a 2x2 grid layout. Perfect for printing and archiving.',
+    title: 'Combine PDF Pages into One | 2-in-1, 4-in-1, 8-in-1 | fenrirPDF',
+    description: 'Arrange multiple PDF pages into a single page with layouts like 2-in-1, 4-in-1, or 8-in-1. Perfect for printing and archiving.',
   }
 };
 

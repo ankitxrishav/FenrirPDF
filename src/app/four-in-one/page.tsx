@@ -22,6 +22,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
 if (typeof window !== "undefined") {
@@ -42,6 +43,7 @@ export default function FourInOnePage() {
   const [progress, setProgress] = useState(0);
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('landscape');
   const [invertColors, setInvertColors] = useState(false);
+  const [layout, setLayout] = useState<"2" | "4" | "8">("4");
 
   const { toast } = useToast();
 
@@ -109,44 +111,45 @@ export default function FourInOnePage() {
         const pdfDoc = await PDFDocument.load(existingPdfBytes);
         const newPdf = await PDFDocument.create();
         const pageCount = pdfDoc.getPageCount();
-        const margin = 18; // Reduced margin for more space
+        const pagesPerSheet = parseInt(layout, 10);
+        const margin = 18; 
 
         const [a4Width, a4Height] = PageSizes.A4;
-        const pageDimensions = orientation === 'portrait' ? [a4Width, a4Height] : [a4Height, a4Width];
+        const [pageWidth, pageHeight] = orientation === 'portrait' ? [a4Width, a4Height] : [a4Height, a4Width];
 
-        for (let i = 0; i < pageCount; i += 4) {
-          const newPage = newPdf.addPage(pageDimensions);
-          const [pageWidth, pageHeight] = pageDimensions;
+        for (let i = 0; i < pageCount; i += pagesPerSheet) {
+          const newPage = newPdf.addPage([pageWidth, pageHeight]);
           
-          const pagesToDraw = pdfDoc.getPages().slice(i, i + 4);
+          const pagesToDraw = pdfDoc.getPages().slice(i, i + pagesPerSheet);
           const embeddedPages = await newPdf.embedPages(pagesToDraw);
 
-          const availableWidth = pageWidth - margin * 2;
-          const availableHeight = pageHeight - margin * 2;
-          const cellWidth = availableWidth / 2;
-          const cellHeight = availableHeight / 2;
+          let cols, rows;
+          if (orientation === 'portrait') {
+            if (pagesPerSheet === 2) { cols = 1; rows = 2; }
+            else if (pagesPerSheet === 4) { cols = 2; rows = 2; }
+            else { cols = 2; rows = 4; } // 8
+          } else { // landscape
+            if (pagesPerSheet === 2) { cols = 2; rows = 1; }
+            else if (pagesPerSheet === 4) { cols = 2; rows = 2; }
+            else { cols = 4; rows = 2; } // 8
+          }
+
+          const availableWidth = pageWidth - (cols + 1) * margin;
+          const availableHeight = pageHeight - (rows + 1) * margin;
+          const cellWidth = availableWidth / cols;
+          const cellHeight = availableHeight / rows;
 
           embeddedPages.forEach((embeddedPage, index) => {
             const scale = Math.min(cellWidth / embeddedPage.width, cellHeight / embeddedPage.height);
             const scaledWidth = embeddedPage.width * scale;
             const scaledHeight = embeddedPage.height * scale;
             
-            let x, y;
-            if (index === 0) { // Top-left
-              x = margin;
-              y = pageHeight - margin - cellHeight;
-            } else if (index === 1) { // Top-right
-              x = margin + cellWidth;
-              y = pageHeight - margin - cellHeight;
-            } else if (index === 2) { // Bottom-left
-              x = margin;
-              y = margin;
-            } else { // Bottom-right
-              x = margin + cellWidth;
-              y = margin;
-            }
+            const col = index % cols;
+            const row = Math.floor(index / cols);
 
-            // Center the page within its cell
+            const x = margin + col * (cellWidth + margin);
+            const y = pageHeight - margin - (row + 1) * cellHeight - row * margin;
+            
             const xOffset = (cellWidth - scaledWidth) / 2;
             const yOffset = (cellHeight - scaledHeight) / 2;
             
@@ -176,12 +179,12 @@ export default function FourInOnePage() {
 
         const pdfBytes = await newPdf.save();
         const blob = new Blob([pdfBytes], { type: "application/pdf" });
-        const finalFilename = `4-in-1-${pdfFile.file.name}`;
+        const finalFilename = `${layout}-in-1-${pdfFile.file.name}`;
         saveAs(blob, finalFilename);
         toast({ title: "Success", description: `Your PDF has been processed and downloaded.` });
     } catch (error) {
-        console.error("Error creating 4-in-1 PDF:", error);
-        toast({ title: "Error", description: "Could not create the 4-in-1 PDF.", variant: "destructive" });
+        console.error("Error creating combined PDF:", error);
+        toast({ title: "Error", description: "Could not create the combined PDF.", variant: "destructive" });
     } finally {
         setIsProcessing(false);
     }
@@ -199,9 +202,9 @@ export default function FourInOnePage() {
       <Header />
       <main className="flex-1 container mx-auto p-4 md:p-8">
         <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-primary">Combine 4 PDF Pages into 1</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-primary">Combine PDF Pages</h1>
             <p className="mt-4 text-lg text-foreground/80 max-w-3xl mx-auto">
-              Arrange four pages of your PDF onto a single page in a 2x2 grid. Perfect for printing handouts or archiving documents.
+              Arrange multiple pages of your PDF onto a single page. Choose your layout, orientation, and download instantly.
             </p>
         </div>
         {!pdfFile && !isLoading ? (
@@ -248,26 +251,36 @@ export default function FourInOnePage() {
                                 <p className="text-sm text-muted-foreground">{pdfFile.pageCount} pages</p>
                             </div>
                         </div>
-                         <div className="space-y-3">
-                            <Label>Page Orientation</Label>
-                            <RadioGroup value={orientation} onValueChange={(v) => setOrientation(v as any)} className="flex items-center gap-4">
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="portrait" id="portrait" />
-                                    <Label htmlFor="portrait">Portrait</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="landscape" id="landscape" />
-                                    <Label htmlFor="landscape">Landscape</Label>
-                                </div>
-                            </RadioGroup>
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Layout</Label>
+                                <Select value={layout} onValueChange={(v) => setLayout(v as any)}>
+                                    <SelectTrigger><SelectValue placeholder="Select layout" /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="2">2 pages per sheet</SelectItem>
+                                        <SelectItem value="4">4 pages per sheet</SelectItem>
+                                        <SelectItem value="8">8 pages per sheet</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Page Orientation</Label>
+                                <RadioGroup value={orientation} onValueChange={(v) => setOrientation(v as any)} className="flex items-center gap-4 pt-2">
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="portrait" id="portrait" />
+                                        <Label htmlFor="portrait">Portrait</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="landscape" id="landscape" />
+                                        <Label htmlFor="landscape">Landscape</Label>
+                                    </div>
+                                </RadioGroup>
+                            </div>
                         </div>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 pt-2">
                             <Checkbox id="invert-colors" checked={invertColors} onCheckedChange={(checked) => setInvertColors(!!checked)} />
                             <Label htmlFor="invert-colors">Invert Colors</Label>
                         </div>
-                        <p className="text-sm text-foreground/80">
-                           This tool will arrange the pages of your document into a 2x2 grid, placing 4 original pages onto each new page.
-                        </p>
                         <div className="flex flex-wrap items-center gap-4 pt-4">
                            <Button onClick={handleDownload} disabled={isProcessing}>
                                 {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
