@@ -1,19 +1,20 @@
+
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Normalize PDF Backgrounds | Free Online Dark Mode Fixer',
-  description: 'Automatically detect and invert dark pages in your PDF to create a consistent white background. Perfect for fixing mixed-light and dark-mode documents. 100% free and private.',
+  title: 'Invert PDF Colors | Selectively Invert Pages Free',
+  description: 'Manually select and invert the colors of specific pages in your PDF. Perfect for turning dark-mode pages to light or for creative effects. 100% free and private.',
   alternates: {
     canonical: '/invert',
   },
   openGraph: {
-    title: 'Normalize PDF Backgrounds | Free Online Dark Mode Fixer | fenrirPDF',
-    description: 'Automatically fix dark-background pages in your PDF for consistent white backgrounds. Ideal for printing and reading.',
+    title: 'Invert PDF Colors | Selectively Invert Pages Free | fenrirPDF',
+    description: 'Manually select and invert the colors of specific pages in your PDF. Ideal for fixing dark pages.',
     url: '/invert',
   },
   twitter: {
-    title: 'Normalize PDF Backgrounds | Free Online Dark Mode Fixer | fenrirPDF',
-    description: 'Automatically fix dark-background pages in your PDF for consistent white backgrounds. Ideal for printing and reading.',
+    title: 'Invert PDF Colors | Selectively Invert Pages Free | fenrirPDF',
+    description: 'Manually select and invert the colors of specific pages in your PDF. Ideal for fixing dark pages.',
   }
 };
 

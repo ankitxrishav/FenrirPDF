@@ -15,7 +15,7 @@ import {
   Loader2,
   X,
   FileText,
-  Badge,
+  RefreshCcw,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
@@ -30,60 +30,12 @@ interface PdfPage {
   id: string;
   previewUrl: string;
   pageNumber: number;
-  shouldInvert: boolean;
 }
-
-interface AnalysisResult {
-    shouldInvert: boolean;
-    confidence: number;
-}
-
-const analyzePageBackgroundColor = (imageData: ImageData): AnalysisResult => {
-    const { data, width, height } = imageData;
-    const totalPixels = width * height;
-    
-    let darkPixels = 0;
-    let lightPixels = 0;
-    let sumIntensity = 0;
-
-    const darkThreshold = 50;
-    const lightThreshold = 205;
-
-    for (let i = 0; i < data.length; i += 4) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-        const intensity = 0.299 * r + 0.587 * g + 0.114 * b;
-        sumIntensity += intensity;
-
-        if (intensity < darkThreshold) {
-            darkPixels++;
-        }
-        if (intensity > lightThreshold) {
-            lightPixels++;
-        }
-    }
-
-    const meanIntensity = sumIntensity / totalPixels;
-    const darkRatio = darkPixels / totalPixels;
-    const lightRatio = lightPixels / totalPixels;
-
-    // A page is considered "dark background" if it has a high percentage of dark pixels
-    // and a very low percentage of light pixels. This helps avoid inverting
-    // white pages that are heavy with black text.
-    const isDark = darkRatio > 0.7 && lightRatio < 0.1 && meanIntensity < 80;
-    
-    const confidence = isDark ? Math.min(1, (darkRatio - 0.7) / 0.3) : 0;
-
-    return {
-        shouldInvert: isDark,
-        confidence: confidence,
-    };
-};
 
 export default function InvertPage() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pages, setPages] = useState<PdfPage[]>([]);
+  const [pagesToInvert, setPagesToInvert] = useState<Set<number>>(new Set());
   const [isProcessing, setIsProcessing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -97,10 +49,10 @@ export default function InvertPage() {
       return;
     }
 
+    clearAll(false);
     setIsLoading(true);
     setProgress(0);
     setPdfFile(uploadedFile);
-    setPages([]);
 
     try {
       const arrayBuffer = await uploadedFile.arrayBuffer();
@@ -110,7 +62,7 @@ export default function InvertPage() {
 
       for (let i = 1; i <= numPages; i++) {
         const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 0.3 }); // Low-res for fast analysis
+        const viewport = page.getViewport({ scale: 0.8 });
         const canvas = document.createElement("canvas");
         const context = canvas.getContext("2d");
         canvas.height = viewport.height;
@@ -118,26 +70,13 @@ export default function InvertPage() {
 
         if (context) {
           await page.render({ canvasContext: context, viewport }).promise;
-          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-          const { shouldInvert } = analyzePageBackgroundColor(imageData);
-          
-          // Create higher quality preview
-          const previewViewport = page.getViewport({ scale: 0.8 });
-          const previewCanvas = document.createElement("canvas");
-          const previewContext = previewCanvas.getContext("2d");
-          previewCanvas.height = previewViewport.height;
-          previewCanvas.width = previewViewport.width;
-          if (previewContext) {
-            await page.render({ canvasContext: previewContext, viewport: previewViewport }).promise;
-          }
-
-          newPages.push({
-            id: `${uploadedFile.name}-page-${i}`,
-            previewUrl: previewCanvas.toDataURL(),
-            pageNumber: i,
-            shouldInvert: shouldInvert
-          });
         }
+
+        newPages.push({
+            id: `${uploadedFile.name}-page-${i}`,
+            previewUrl: canvas.toDataURL(),
+            pageNumber: i,
+        });
         setProgress(Math.round((i / numPages) * 100));
       }
       setPages(newPages);
@@ -164,6 +103,18 @@ export default function InvertPage() {
     accept: { 'application/pdf': ['.pdf'] },
   });
 
+  const toggleInvertPage = (pageNumber: number) => {
+    setPagesToInvert(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(pageNumber)) {
+            newSet.delete(pageNumber);
+        } else {
+            newSet.add(pageNumber);
+        }
+        return newSet;
+    });
+  }
+
   const handleDownload = async () => {
     if (!pdfFile) {
         toast({ title: "No file to process", description: "Please upload a PDF.", variant: "destructive" });
@@ -176,53 +127,52 @@ export default function InvertPage() {
         const pdfDoc = await PDFDocument.load(existingPdfBytes);
         const pdfPages = pdfDoc.getPages();
 
-        for (let i = 0; i < pages.length; i++) {
-          if (pages[i].shouldInvert) {
-            const page = pdfPages[i];
-            const { width, height } = page.getSize();
-            page.drawRectangle({
-                x: 0,
-                y: 0,
-                width,
-                height,
-                color: rgb(1, 1, 1),
-                blendMode: BlendMode.Difference,
-            });
-          }
-        }
+        pagesToInvert.forEach(pageNumber => {
+            const pageIndex = pageNumber - 1;
+            if (pageIndex >= 0 && pageIndex < pdfPages.length) {
+                const page = pdfPages[pageIndex];
+                const { width, height } = page.getSize();
+                page.drawRectangle({
+                    x: 0,
+                    y: 0,
+                    width,
+                    height,
+                    color: rgb(1, 1, 1),
+                    blendMode: BlendMode.Difference,
+                });
+            }
+        });
         
         const pdfBytes = await pdfDoc.save();
         const blob = new Blob([pdfBytes], { type: "application/pdf" });
-        const finalFilename = `normalized-${pdfFile.name}`;
+        const finalFilename = `inverted-${pdfFile.name}`;
         saveAs(blob, finalFilename);
-        toast({ title: "Success", description: `Your PDF has been normalized and downloaded.` });
+        toast({ title: "Success", description: `Your PDF has been processed and downloaded.` });
     } catch (error) {
-        console.error("Error normalizing PDF:", error);
-        toast({ title: "Error", description: "Could not normalize the PDF colors.", variant: "destructive" });
+        console.error("Error inverting PDF pages:", error);
+        toast({ title: "Error", description: "Could not process the PDF for inversion.", variant: "destructive" });
     } finally {
         setIsProcessing(false);
     }
   };
   
-  const clearAll = () => {
+  const clearAll = (showToast = true) => {
     setPdfFile(null);
     setPages([]);
+    setPagesToInvert(new Set());
     setIsProcessing(false);
     setIsLoading(false);
-    toast({ title: "Cleared", description: "The file and analysis have been removed." });
+    if(showToast) toast({ title: "Cleared", description: "The file has been removed." });
   }
-
-  const pagesToInvert = useMemo(() => pages.filter(p => p.shouldInvert).length, [pages]);
-  const pagesToKeep = useMemo(() => pages.filter(p => !p.shouldInvert).length, [pages]);
 
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1 container mx-auto p-4 md:p-8">
         <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-primary">Normalize PDF Backgrounds</h1>
+            <h1 className="text-4xl md:text-5xl font-bold text-primary">Invert PDF Colors</h1>
             <p className="mt-4 text-lg text-foreground/80 max-w-3xl mx-auto">
-              Automatically detects and fixes dark or inverted pages so your entire document has a clean, white background.
+              Selectively invert the colors of specific pages in your PDF. Click on a page to mark it for inversion.
             </p>
         </div>
         {!pdfFile && !isLoading ? (
@@ -238,14 +188,14 @@ export default function InvertPage() {
               Drag & Drop or <button type="button" className="text-accent underline" onClick={open}>Click to Upload</button>
             </h2>
             <p className="mt-2 text-muted-foreground">
-              Upload a PDF to normalize its page backgrounds
+              Upload a PDF to selectively invert its pages
             </p>
           </div>
         ) : (isLoading && pages.length === 0) ? (
              <div className="flex flex-col items-center justify-center h-[50vh]">
                 <div className="w-full max-w-md space-y-4">
                     <p className="text-lg text-center text-muted-foreground">
-                      Analyzing pages...
+                      Generating page previews...
                     </p>
                     <Progress value={progress} className="w-full" />
                     <p className="text-sm text-center text-muted-foreground">{progress}%</p>
@@ -260,40 +210,41 @@ export default function InvertPage() {
                     <div>
                         <h2 className="font-semibold text-lg">{pdfFile.name}</h2>
                         <p className="text-sm text-muted-foreground">
-                            {pagesToInvert > 0 ? `${pagesToInvert} pages will be inverted.` : `All pages seem to have a light background.`} {pagesToKeep} pages will remain unchanged.
+                           {pagesToInvert.size > 0 ? `${pagesToInvert.size} pages marked for inversion.` : `Click on pages to select them for inversion.`}
                         </p>
                     </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-4">
                    <Button onClick={handleDownload} disabled={isProcessing}>
                         {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
-                        Normalize & Download
+                        Download PDF
                     </Button>
                      <Button variant="outline" onClick={open}>
                         Upload Another
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={clearAll}><X className="h-4 w-4"/></Button>
+                    <Button variant="ghost" size="icon" onClick={() => clearAll(true)}><X className="h-4 w-4"/></Button>
                 </div>
               </CardContent>
             </Card>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {pages.map(page => (
-                <div key={page.id} className="relative">
-                  <Card className="overflow-hidden shadow-md">
+                <div key={page.id} className="relative group cursor-pointer" onClick={() => toggleInvertPage(page.pageNumber)}>
+                  <Card className={`overflow-hidden shadow-md transition-all ${pagesToInvert.has(page.pageNumber) ? 'ring-2 ring-accent' : ''}`}>
                      <CardContent className="p-0 aspect-[3/4] flex items-center justify-center bg-muted">
                         <img
                         src={page.previewUrl}
                         alt={`Preview of page ${page.pageNumber}`}
-                        className="w-full h-full object-contain"
+                        className={`w-full h-full object-contain transition-transform duration-300 group-hover:scale-105 ${pagesToInvert.has(page.pageNumber) ? 'scale-105' : ''}`}
                         />
                     </CardContent>
                   </Card>
-                  {page.shouldInvert && (
-                    <div className="absolute top-2 right-2 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded-full shadow-lg">
-                      Invert
-                    </div>
-                  )}
+                   <div 
+                     className={`absolute inset-0 bg-accent/80 flex flex-col items-center justify-center text-accent-foreground transition-opacity ${pagesToInvert.has(page.pageNumber) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                   >
+                     <RefreshCcw className="w-8 h-8" />
+                     <span className="mt-2 font-semibold">{pagesToInvert.has(page.pageNumber) ? 'Selected' : 'Invert'}</span>
+                   </div>
                    <div className="absolute bottom-1 left-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded">
                       {page.pageNumber}
                     </div>
