@@ -3,6 +3,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from '@/components/ui/toaster';
 import { Footer } from '@/components/Footer';
+import { SharedFileProvider } from '@/context/SharedFileContext';
 
 const siteConfig = {
   name: 'fenrirPDF',
@@ -82,7 +83,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: '/favicon.ico',
-    shortcut: '/favicon-16x16.png',
+    shortcut: '/favicon-32x32.png',
     apple: '/apple-touch-icon.png',
   },
   verification: {
@@ -121,13 +122,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex flex-col min-h-screen">
-            <main className="flex-1 flex flex-col">
-              {children}
-            </main>
-            <Footer />
-          </div>
-          <Toaster />
+          <SharedFileProvider>
+            <div className="flex flex-col min-h-screen">
+              <main className="flex-1 flex flex-col">
+                {children}
+              </main>
+              <Footer />
+            </div>
+            <Toaster />
+          </SharedFileProvider>
         </ThemeProvider>
       </body>
     </html>

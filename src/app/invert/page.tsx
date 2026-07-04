@@ -1,271 +1,307 @@
-
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { PDFDocument, rgb, BlendMode } from "pdf-lib";
-import { saveAs } from "file-saver";
-import { useDropzone } from 'react-dropzone';
 import * as pdfjsLib from "pdfjs-dist";
+import { saveAs } from "file-saver";
 
-import { Header } from "@/components/Header";
+import { UploadShell } from "@/components/UploadShell";
+import { ToolShell } from "@/components/ToolShell";
+import { ThumbnailGrid, GridItem } from "@/components/ThumbnailGrid";
+import { ToolChainingBar } from "@/components/ToolChainingBar";
 import { Button } from "@/components/ui/button";
-import {
-  UploadCloud,
-  Download,
-  Loader2,
-  X,
-  FileText,
-  RefreshCcw,
-} from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Progress } from "@/components/ui/progress";
-import { Card, CardContent } from "@/components/ui/card";
-
+import { useSharedFile } from "@/context/SharedFileContext";
+import { Download, Loader2, X, FileText, CheckSquare, Square } from "lucide-react";
 
 if (typeof window !== "undefined") {
   pdfjsLib.GlobalWorkerOptions.workerSrc = `/pdf.worker.mjs`;
 }
 
-interface PdfPage {
+interface PageState {
   id: string;
-  previewUrl: string;
   pageNumber: number;
+  thumbnailUrl: string;
+  originalIndex: number;
 }
 
 export default function InvertPage() {
+  const { sharedFile, setSharedFile, clearSharedFile } = useSharedFile();
   const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [pages, setPages] = useState<PdfPage[]>([]);
-  const [pagesToInvert, setPagesToInvert] = useState<Set<number>>(new Set());
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [pages, setPages] = useState<PageState[]>([]);
+  const [pagesToInvert, setPagesToInvert] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
 
   const { toast } = useToast();
 
-  const handleFileChange = useCallback(async (uploadedFile: File | null) => {
-    if (!uploadedFile) return;
-    if (uploadedFile.type !== "application/pdf") {
-      toast({ title: "Invalid file type", description: "Please upload a PDF file.", variant: "destructive" });
-      return;
-    }
-
-    clearAll(false);
-    setIsLoading(true);
-    setProgress(0);
-    setPdfFile(uploadedFile);
-
-    try {
-      const arrayBuffer = await uploadedFile.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const numPages = pdf.numPages;
-      const newPages: PdfPage[] = [];
-
-      for (let i = 1; i <= numPages; i++) {
-        const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 0.8 });
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        if (context) {
-          await page.render({ canvasContext: context, viewport }).promise;
-        }
-
-        newPages.push({
-            id: `${uploadedFile.name}-page-${i}`,
-            previewUrl: canvas.toDataURL(),
-            pageNumber: i,
+  const handleFileChange = useCallback(
+    async (uploadedFile: File | null) => {
+      if (!uploadedFile) return;
+      if (uploadedFile.type !== "application/pdf") {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload a PDF file.",
+          variant: "destructive",
         });
-        setProgress(Math.round((i / numPages) * 100));
+        return;
       }
-      setPages(newPages);
 
-    } catch (error) {
-      console.error("Error processing file:", error);
-      toast({ title: "Processing Error", description: `Could not analyze the PDF file.`, variant: "destructive" });
-    } finally {
-        setIsLoading(false);
-    }
-  }, [toast]);
+      setPdfFile(uploadedFile);
+      setIsLoading(true);
+      setProgress(0);
+      setPagesToInvert(new Set());
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      handleFileChange(acceptedFiles[0]);
-    }
-  }, [handleFileChange]);
+      if (uploadedFile.size > 30 * 1024 * 1024) {
+        toast({
+          title: "Large file detected",
+          description: "Processing may take longer and use significant memory on this device.",
+        });
+      }
 
-  const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
-    onDrop,
-    multiple: false,
-    noClick: true,
-    noKeyboard: true,
-    accept: { 'application/pdf': ['.pdf'] },
-  });
+      try {
+        const arrayBuffer = await uploadedFile.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const newPages: PageState[] = [];
+        const numPages = pdf.numPages;
 
-  const toggleInvertPage = (pageNumber: number) => {
-    setPagesToInvert(prev => {
-        const newSet = new Set(prev);
-        if (newSet.has(pageNumber)) {
-            newSet.delete(pageNumber);
-        } else {
-            newSet.add(pageNumber);
+        for (let i = 1; i <= numPages; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 0.5 });
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          if (context) {
+            await page.render({ canvasContext: context, viewport }).promise;
+            newPages.push({
+              id: `page-${i}`,
+              pageNumber: i,
+              thumbnailUrl: canvas.toDataURL(),
+              originalIndex: i - 1,
+            });
+            canvas.width = canvas.height = 0; // free memory
+          }
+          setProgress(Math.round((i / numPages) * 100));
         }
-        return newSet;
-    });
-  }
+        setPages(newPages);
+      } catch (error) {
+        console.error("Error processing PDF:", error);
+        toast({
+          title: "Error processing PDF",
+          description: "Could not read the PDF file.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [toast]
+  );
+
+  // Handle chained file injection
+  useEffect(() => {
+    if (sharedFile) {
+      handleFileChange(sharedFile);
+      clearSharedFile();
+    }
+  }, [sharedFile, handleFileChange, clearSharedFile]);
 
   const toggleSelectAll = () => {
     if (pagesToInvert.size === pages.length) {
       setPagesToInvert(new Set());
     } else {
-      const allPageNumbers = new Set(pages.map(p => p.pageNumber));
-      setPagesToInvert(allPageNumbers);
+      setPagesToInvert(new Set(pages.map((p) => p.id)));
     }
   };
 
   const handleDownload = async () => {
     if (!pdfFile) {
-        toast({ title: "No file to process", description: "Please upload a PDF.", variant: "destructive" });
-        return;
+      toast({
+        title: "No file to process",
+        description: "Please upload a PDF.",
+        variant: "destructive",
+      });
+      return;
     }
-    
+
+    if (pagesToInvert.size === 0) {
+      toast({
+        title: "No pages selected",
+        description: "Please click on pages to mark them for color inversion.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsProcessing(true);
     try {
-        const existingPdfBytes = await pdfFile.arrayBuffer();
-        const pdfDoc = await PDFDocument.load(existingPdfBytes);
-        const pdfPages = pdfDoc.getPages();
+      const existingPdfBytes = await pdfFile.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const pdfPages = pdfDoc.getPages();
 
-        pagesToInvert.forEach(pageNumber => {
-            const pageIndex = pageNumber - 1;
-            if (pageIndex >= 0 && pageIndex < pdfPages.length) {
-                const page = pdfPages[pageIndex];
-                const { width, height } = page.getSize();
-                page.drawRectangle({
-                    x: 0,
-                    y: 0,
-                    width,
-                    height,
-                    color: rgb(1, 1, 1),
-                    blendMode: BlendMode.Difference,
-                });
-            }
-        });
-        
-        const pdfBytes = await pdfDoc.save();
-        const blob = new Blob([pdfBytes], { type: "application/pdf" });
-        const finalFilename = `inverted-${pdfFile.name}`;
-        saveAs(blob, finalFilename);
-        toast({ title: "Success", description: `Your PDF has been processed and downloaded.` });
+      pages.forEach((pageState) => {
+        if (pagesToInvert.has(pageState.id)) {
+          const pageIndex = pageState.originalIndex;
+          if (pageIndex >= 0 && pageIndex < pdfPages.length) {
+            const page = pdfPages[pageIndex];
+            const { width, height } = page.getSize();
+            page.drawRectangle({
+              x: 0,
+              y: 0,
+              width,
+              height,
+              color: rgb(1, 1, 1),
+              opacity: 1,
+              blendMode: BlendMode.Difference,
+            });
+          }
+        }
+      });
+
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const finalFilename = `inverted-${pdfFile.name}`;
+      saveAs(blob, finalFilename);
+
+      // Chain result
+      setSharedFile(new File([blob], finalFilename, { type: "application/pdf" }));
+
+      toast({ title: "Success", description: "Your PDF has been inverted and saved." });
     } catch (error) {
-        console.error("Error inverting PDF pages:", error);
-        toast({ title: "Error", description: "Could not process the PDF for inversion.", variant: "destructive" });
+      console.error("Error inverting PDF pages:", error);
+      toast({
+        title: "Error",
+        description: "Could not process the PDF for inversion.",
+        variant: "destructive",
+      });
     } finally {
-        setIsProcessing(false);
+      setIsProcessing(false);
     }
   };
-  
+
   const clearAll = (showToast = true) => {
     setPdfFile(null);
     setPages([]);
     setPagesToInvert(new Set());
     setIsProcessing(false);
     setIsLoading(false);
-    if(showToast) toast({ title: "Cleared", description: "The file has been removed." });
-  }
+    if (showToast) {
+      toast({ title: "Cleared", description: "The file has been removed." });
+    }
+  };
+
+  const gridItems: GridItem[] = pages.map((p) => ({
+    id: p.id,
+    title: `Page ${p.pageNumber}`,
+    thumbnailUrl: p.thumbnailUrl,
+    pageNumber: p.pageNumber,
+    subtitle: `Page ${p.pageNumber}`,
+  }));
+
+  const optionsPanel = (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Label>Actions</Label>
+        <Button variant="outline" size="sm" onClick={toggleSelectAll} className="w-full flex items-center gap-1.5 justify-center cursor-pointer">
+          {pagesToInvert.size === pages.length ? (
+            <>
+              <Square className="w-4 h-4" />
+              Deselect All Pages
+            </>
+          ) : (
+            <>
+              <CheckSquare className="w-4 h-4" />
+              Select All Pages
+            </>
+          )}
+        </Button>
+      </div>
+
+      <Button onClick={handleDownload} disabled={isProcessing || pagesToInvert.size === 0} className="w-full cursor-pointer">
+        {isProcessing ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <Download className="mr-2 h-4 w-4" />
+        )}
+        Invert & Download
+      </Button>
+    </div>
+  );
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
       <main className="flex-1 container mx-auto p-4 md:p-8">
-        <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold text-primary">Invert PDF Colors</h1>
-            <p className="mt-4 text-lg text-foreground/80 max-w-3xl mx-auto">
-              Selectively invert the colors of specific pages in your PDF. Click on a page to mark it for inversion.
-            </p>
-        </div>
-        {!pdfFile && !isLoading ? (
-          <div
-            {...getRootProps()}
-            className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-12 text-center h-[50vh] transition-colors ${
-              isDragActive ? 'border-primary bg-primary/10' : 'border-gray-300'
-            }`}
+        <ToolShell
+          title="Invert PDF Colors"
+          description="Selectively invert the colors of specific pages in your PDF. Ideal for printing dark-mode PDFs or night reading."
+          optionsPanel={pdfFile ? optionsPanel : undefined}
+        >
+          <UploadShell
+            filesCount={pdfFile ? 1 : 0}
+            isLoading={isLoading}
+            progress={progress}
+            onFilesChange={(files) => handleFileChange(files[0])}
+            description="Upload a single PDF to selectively invert its colors"
           >
-            <input {...getInputProps()} />
-            <UploadCloud className="w-16 h-16 text-muted-foreground" />
-            <h2 className="mt-4 text-2xl font-semibold">
-              Drag & Drop or <button type="button" className="text-accent underline" onClick={open}>Click to Upload</button>
-            </h2>
-            <p className="mt-2 text-muted-foreground">
-              Upload a PDF to selectively invert its pages
-            </p>
-          </div>
-        ) : (isLoading && pages.length === 0) ? (
-             <div className="flex flex-col items-center justify-center h-[50vh]">
-                <div className="w-full max-w-md space-y-4">
-                    <p className="text-lg text-center text-muted-foreground">
-                      Generating page previews...
-                    </p>
-                    <Progress value={progress} className="w-full" />
-                    <p className="text-sm text-center text-muted-foreground">{progress}%</p>
-                </div>
-            </div>
-        ) : pdfFile && pages.length > 0 ? (
-          <div className="space-y-6">
-            <Card>
-              <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-                 <div className="flex items-center gap-3">
-                    <FileText className="w-8 h-8 text-primary"/>
+            {pdfFile && (
+              <div className="space-y-6">
+                <div className="flex flex-wrap gap-4 items-center justify-between p-4 rounded-lg bg-card border">
+                  <div className="flex items-center gap-4">
+                    <FileText className="w-8 h-8 text-primary" />
                     <div>
-                        <h2 className="font-semibold text-lg">{pdfFile.name}</h2>
-                        <p className="text-sm text-muted-foreground">
-                           {pagesToInvert.size > 0 ? `${pagesToInvert.size} of ${pages.length} pages marked for inversion.` : `Click on pages to select them for inversion.`}
-                        </p>
+                      <p className="font-semibold text-foreground">{pdfFile.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {pagesToInvert.size} of {pages.length} pages selected for inversion
+                      </p>
                     </div>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => clearAll(true)} className="cursor-pointer">
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
-                <div className="flex flex-wrap items-center gap-4">
-                   <Button onClick={toggleSelectAll} variant="secondary">
-                    {pagesToInvert.size === pages.length ? 'Deselect All' : 'Select All'}
-                   </Button>
-                   <Button onClick={handleDownload} disabled={isProcessing}>
-                        {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4" />}
-                        Download PDF
-                    </Button>
-                     <Button variant="outline" onClick={open}>
-                        Upload Another
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => clearAll(true)}><X className="h-4 w-4"/></Button>
-                </div>
-              </CardContent>
-            </Card>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {pages.map(page => (
-                <div key={page.id} className="relative group cursor-pointer" onClick={() => toggleInvertPage(page.pageNumber)}>
-                  <Card className={`overflow-hidden shadow-md transition-all ${pagesToInvert.has(page.pageNumber) ? 'ring-2 ring-accent' : ''}`}>
-                     <CardContent className="p-0 aspect-[3/4] flex items-center justify-center bg-muted">
-                        <img
-                        src={page.previewUrl}
-                        alt={`Preview of page ${page.pageNumber}`}
-                        className={`w-full h-full object-contain transition-transform duration-300 group-hover:scale-105 ${pagesToInvert.has(page.pageNumber) ? 'scale-105' : ''}`}
-                        />
-                    </CardContent>
-                  </Card>
-                   <div 
-                     className={`absolute inset-0 bg-accent/80 flex flex-col items-center justify-center text-accent-foreground transition-opacity ${pagesToInvert.has(page.pageNumber) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                   >
-                     <RefreshCcw className="w-8 h-8" />
-                     <span className="mt-2 font-semibold">{pagesToInvert.has(page.pageNumber) ? 'Selected' : 'Invert'}</span>
-                   </div>
-                   <div className="absolute bottom-1 left-2 bg-black/50 text-white text-xs px-1.5 py-0.5 rounded">
-                      {page.pageNumber}
-                    </div>
+                <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 text-sm text-amber-600 dark:text-amber-400">
+                  ⚠️ Color inversion uses PDF blend modes. Results are best in Chrome and Adobe Acrobat. Some mobile viewers may not render inversion correctly.
                 </div>
-              ))}
-            </div>
 
-          </div>
-        ) : null}
+                <p className="text-sm text-muted-foreground text-center">
+                  Click on the checkbox or pages below to select which ones to invert.
+                </p>
+
+                <ThumbnailGrid
+                  items={gridItems}
+                  onItemsOrderChange={() => {}} // Disabled reordering in Invert tool
+                  selectionMode={true}
+                  selectedIds={pagesToInvert}
+                  onSelectItem={(id) => {
+                    setPagesToInvert((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(id)) next.delete(id);
+                      else next.add(id);
+                      return next;
+                    });
+                  }}
+                  extraOverlay={(item) => {
+                    const isInverted = pagesToInvert.has(item.id);
+                    return isInverted ? (
+                      <div className="absolute inset-0 bg-primary/20 flex items-center justify-center pointer-events-none">
+                        <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded shadow">
+                          INVERTED
+                        </span>
+                      </div>
+                    ) : null;
+                  }}
+                />
+
+                <ToolChainingBar />
+              </div>
+            )}
+          </UploadShell>
+        </ToolShell>
       </main>
     </div>
   );

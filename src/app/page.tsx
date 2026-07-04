@@ -1,16 +1,6 @@
-import Link from 'next/link';
 import { Header } from '@/components/Header';
 import type { Metadata } from 'next';
-import {
-  Merge,
-  Scissors,
-  Baseline,
-  Droplet,
-  Grid,
-  Contrast,
-  Image as ImageIcon,
-  RefreshCcw,
-} from 'lucide-react';
+import HomeDashboard from '@/components/HomeDashboard';
 
 const siteConfig = {
   name: 'fenrirPDF',
@@ -109,92 +99,33 @@ const JsonLd = {
   }
 };
 
-const FeatureCard = ({ href, icon: Icon, title, description }: { href: string, icon: React.ReactNode, title: string, description: string }) => (
-    <Link href={href} className="flex-1 min-w-[280px]">
-        <div className="h-full bg-card p-6 rounded-2xl flex flex-col items-center text-center w-full border hover:border-accent hover:shadow-lg hover:scale-105 transition-all duration-300">
-            <div className="bg-muted/80 text-primary rounded-full p-3">
-                {Icon}
-            </div>
-            <p className="mt-4 font-bold text-primary text-lg">{title}</p>
-            <p className="mt-2 text-sm text-foreground/70">{description}</p>
-        </div>
-    </Link>
-);
-
-
 export default function Home() {
   return (
-    <div className="flex flex-col h-full font-sans bg-background">
+    <div className="flex flex-col min-h-screen bg-background">
        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JsonLd) }}
         />
       <Header />
-      <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-6xl mx-auto">
-            <div className="mb-8 text-center">
-              <h1 className="text-3xl md:text-4xl font-bold text-primary leading-tight tracking-tighter">
-                FenrirPDF: Your Free &amp; Private PDF Toolkit
+      <main className="flex-grow flex items-center justify-center p-4 md:p-8">
+        <div className="w-full max-w-6xl mx-auto space-y-8">
+            <div className="text-center space-y-4">
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                fenrirPDF
               </h1>
-              <p className="mt-3 text-base text-foreground/80 max-w-2xl mx-auto">
-                Merge, Extract, and More. No Uploads. Ever.
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Lightweight, browser-side tools to organize, convert, and edit PDFs.
+                <span className="block font-semibold mt-1 text-foreground">100% free. No server uploads. Ever.</span>
               </p>
             </div>
             
-            <div className="p-2 rounded-3xl animated-border">
-              <div className="bg-background/80 backdrop-blur-xl rounded-2xl p-6">
-                 <div className="flex flex-wrap justify-center gap-6">
-                     <FeatureCard 
-                        href="/four-in-one" 
-                        title="Combine PDF Pages" 
-                        description="Arrange multiple pages onto a single page."
-                        icon={<Grid size={24} />}
-                      />
-                      <FeatureCard 
-                        href="/invert" 
-                        title="Invert PDF Colors" 
-                        description="Selectively invert the colors of specific pages."
-                        icon={<RefreshCcw size={24} />}
-                      />
-                      <FeatureCard
-                        href="/image-to-pdf"
-                        title="Image to PDF"
-                        description="Convert images into a single PDF."
-                        icon={<ImageIcon size={24} />}
-                      />
-                      <FeatureCard 
-                        href="/merge" 
-                        title="Merge PDFs" 
-                        description="Combine multiple PDFs into one."
-                        icon={<Merge size={24} />} 
-                      />
-                      <FeatureCard 
-                        href="/extract" 
-                        title="Extract & Reorder" 
-                        description="Reorder, rotate, and delete pages." 
-                        icon={<Scissors size={24} />}
-                      />
-                      <FeatureCard 
-                        href="/number" 
-                        title="Add Page Numbers" 
-                        description="Insert page numbers into your PDF." 
-                        icon={<Baseline size={24} />}
-                      />
-                      <FeatureCard 
-                        href="/watermark" 
-                        title="Add Watermark" 
-                        description="Stamp text or an image over your PDF."
-                        icon={<Droplet size={24} />}
-                      />
-                </div>
-              </div>
-            </div>
+            <HomeDashboard />
             
-            <p className="mt-6 text-center text-xs text-foreground/60">
+            <p className="text-center text-xs text-muted-foreground">
                 All processing is done locally in your browser for 100% privacy.
             </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
