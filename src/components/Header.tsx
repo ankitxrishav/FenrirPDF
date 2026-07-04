@@ -16,13 +16,13 @@ import { TOOLS } from "@/lib/tools";
 
 export function Header() {
   const organizeTools = TOOLS.filter((t) =>
-    ["merge", "extract", "rotate", "four-in-one"].includes(t.slug)
+    ["merge", "extract", "rotate", "four-in-one", "clean"].includes(t.slug)
   );
   const convertTools = TOOLS.filter((t) =>
-    ["image-to-pdf"].includes(t.slug)
+    ["image-to-pdf", "extract-images", "long-image", "ocr"].includes(t.slug)
   );
   const editTools = TOOLS.filter((t) =>
-    ["watermark", "number", "invert"].includes(t.slug)
+    ["watermark", "number", "invert", "inspect", "compare", "protect"].includes(t.slug)
   );
 
   return (

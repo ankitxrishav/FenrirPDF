@@ -110,6 +110,33 @@ export default function NumberPage() {
     [toast, files.length]
   );
 
+  // Load saved presets from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem("preset_numbering");
+    if (saved) {
+      try {
+        const config = JSON.parse(saved);
+        if (config.position) setPosition(config.position);
+        if (config.margin !== undefined) setMargin(config.margin);
+        if (config.fontSize) setFontSize(config.fontSize);
+        if (config.format) setFormat(config.format);
+      } catch (e) {
+        console.error("Error loading numbering preset:", e);
+      }
+    }
+  }, []);
+
+  const handleSavePreset = () => {
+    const config = {
+      position,
+      margin,
+      fontSize,
+      format,
+    };
+    localStorage.setItem("preset_numbering", JSON.stringify(config));
+    toast({ title: "Preset Saved", description: "Your current numbering settings have been saved as default." });
+  };
+
   // Handle chained file injection
   useEffect(() => {
     if (sharedFile) {
@@ -299,6 +326,12 @@ export default function NumberPage() {
         <p className="text-[11px] text-muted-foreground">
           Use {"{p}"} for page number and {"{n}"} for total pages.
         </p>
+      </div>
+
+      <div className="flex gap-2 pt-2 border-t">
+        <Button variant="outline" onClick={handleSavePreset} className="flex-1 text-xs cursor-pointer">
+          Save Preset
+        </Button>
       </div>
 
       <Button onClick={handleDownload} disabled={isProcessing || isLoading || files.length === 0} className="w-full cursor-pointer">

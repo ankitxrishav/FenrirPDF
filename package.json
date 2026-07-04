@@ -15,6 +15,7 @@
     "@dnd-kit/sortable": "^8.0.0",
     "@ducanh2912/next-pwa": "^10.2.7",
     "@hookform/resolvers": "^4.1.3",
+    "@pdfsmaller/pdf-encrypt-lite": "^1.0.2",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-avatar": "^1.1.3",
@@ -57,6 +58,7 @@
     "recharts": "^2.15.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
+    "tesseract.js": "^7.0.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {

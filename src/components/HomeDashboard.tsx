@@ -16,6 +16,12 @@ import {
   RefreshCcw,
   Image as ImageIcon,
   RotateCw,
+  Info,
+  FileSearch,
+  DownloadCloud,
+  FileSpreadsheet,
+  BookOpen,
+  Lock,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TOOLS, Tool } from "@/lib/tools";
@@ -29,6 +35,12 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   Baseline,
   Droplet,
   RotateCw,
+  Info,
+  FileSearch,
+  DownloadCloud,
+  FileSpreadsheet,
+  BookOpen,
+  Lock,
 };
 
 const FeatureCard = ({ tool, onSelect }: { tool: Tool; onSelect: () => void }) => {
@@ -80,13 +92,13 @@ export default function HomeDashboard() {
   );
 
   const organizeTools = filteredTools.filter((t) =>
-    ["merge", "extract", "rotate", "four-in-one"].includes(t.slug)
+    ["merge", "extract", "rotate", "four-in-one", "clean"].includes(t.slug)
   );
   const convertTools = filteredTools.filter((t) =>
-    ["image-to-pdf"].includes(t.slug)
+    ["image-to-pdf", "extract-images", "long-image", "ocr"].includes(t.slug)
   );
   const editTools = filteredTools.filter((t) =>
-    ["watermark", "number", "invert"].includes(t.slug)
+    ["watermark", "number", "invert", "inspect", "compare", "protect"].includes(t.slug)
   );
   const recentTools = TOOLS.filter((t) => recentSlugs.includes(t.slug));
 
